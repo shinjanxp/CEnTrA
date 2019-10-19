@@ -45,10 +45,10 @@ class PythonChecker {
         this.pythonScriptPath = "contracts/" + contractID + ".py";
         this.contractID = contractID;
 
-        if (latestPort == 65535) {
+        if (latestPort >= 65535) {
             latestPort = 13000;
         }
-        latestPort += 1;
+        latestPort += (int)(Math.random() * 50 + 1);;
         port = latestPort;
 
         this.startChecker();

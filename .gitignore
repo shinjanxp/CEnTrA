@@ -25,4 +25,6 @@ chainspacecore/.swo
 chainspacecore/.swp
 chainspacemeasurements/build/
 chainspacemeasurements/dist/
-
+chainspaceapi/build
+chainspaceapi/dist
+.vscode

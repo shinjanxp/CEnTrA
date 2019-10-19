@@ -31,7 +31,7 @@ contrib/core-tools/easystart.mac.sh
 - starting the console client:
 from /chainspace/chainspacecore
 ```
-java -cp lib/BFT-SMaRt.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.ConsoleClient ChainSpaceClientConfig/config.txt
+java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.ConsoleClient ChainSpaceClientConfig/config.txt
 ```
 - starting the client service:
 from /chainspace/chainspacecore

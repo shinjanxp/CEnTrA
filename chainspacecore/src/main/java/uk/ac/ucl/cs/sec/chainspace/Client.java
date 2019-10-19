@@ -39,7 +39,7 @@ public class Client {
 
 
     private static int initialisePort() {
-        return new Integer(System.getProperty("client.api.port", "5000"));
+        return new Integer(System.getProperty("client.api.port", "5001"));
     }
     /**
      * loadConfiguration
