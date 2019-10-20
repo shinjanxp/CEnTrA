@@ -29,7 +29,7 @@ create_meter_transaction = energy_bidding.create_meter(
     dumps([5, 3, 5, 3, 5]),  # the tariffs
     dumps(764)               # billing period         
 )
-token = create_meter_transaction['transaction']['outputs'][0]
+token = create_meter_transaction['transaction']['outputs'][2]
 meter = create_meter_transaction['transaction']['outputs'][1]
 client.process_transaction(create_meter_transaction)
 

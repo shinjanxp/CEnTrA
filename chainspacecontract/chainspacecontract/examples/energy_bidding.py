@@ -27,7 +27,7 @@ def init():
 
     # return
     return {
-        'outputs': (dumps({'type' : 'EBToken'}),),
+        'outputs': (dumps({'type' : 'SMToken'}),),
     }
 
 # ------------------------------------------------------------------
@@ -48,10 +48,12 @@ def create_meter(inputs, reference_inputs, parameters, pub, info, tariffs, billi
         'billing_period' : loads(billing_period),
         'tariffs'        : loads(tariffs)
     }
-
+    ebtoken = {
+        'type':'EBToken'
+    }
     # return
     return {
-        'outputs': (inputs[0], dumps(new_meter))
+        'outputs': (inputs[0], dumps(new_meter), dumps(ebtoken))
     }
 
 # ------------------------------------------------------------------
@@ -141,7 +143,7 @@ def create_meter_checker(inputs, reference_inputs, parameters, outputs, returns,
         meter = loads(outputs[1])
 
         # check format
-        if len(inputs) != 1 or len(reference_inputs) != 0 or len(outputs) != 2 or len(returns) != 0:
+        if len(inputs) != 1 or len(reference_inputs) != 0 or len(outputs) != 3 or len(returns) != 0:
             return False
         if meter['pub'] == None or meter['info'] == None or meter['billing_period'] == None:
             return False
@@ -149,7 +151,7 @@ def create_meter_checker(inputs, reference_inputs, parameters, outputs, returns,
             return False
 
         # check tokens
-        if loads(inputs[0])['type'] != 'EBToken' or loads(outputs[0])['type'] != 'EBToken':
+        if loads(inputs[0])['type'] != 'SMToken' or loads(outputs[0])['type'] != 'SMToken' or loads(outputs[2])['type'] != 'EBToken' :
             return False
         if meter['type'] != 'SMMeter':
             return False
