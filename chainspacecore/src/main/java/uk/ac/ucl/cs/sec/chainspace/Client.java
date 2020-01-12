@@ -24,7 +24,8 @@ public class Client {
 
 
     // CONFIG -- port number
-    public static final int PORT = initialisePort();
+    // public static final int PORT = initialisePort();
+    public static int PORT;
 
     private static SimpleLogger slogger;
 
@@ -38,9 +39,6 @@ public class Client {
 
 
 
-    private static int initialisePort() {
-        return new Integer(System.getProperty("client.api.port", "5001"));
-    }
     /**
      * loadConfiguration
      * Load the configuration file.
@@ -61,6 +59,14 @@ public class Client {
         }
         else {
             out.println("Could not find configuration for shardConfigFile.");
+            done = false;
+        }
+
+        if(configData.containsKey(ClientConfig.port)) {
+            PORT = Integer.parseInt(configData.get(ClientConfig.port));
+        }
+        else {
+            out.println("Could not find configuration for port.");
             done = false;
         }
 
