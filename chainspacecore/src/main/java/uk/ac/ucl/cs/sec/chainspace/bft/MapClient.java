@@ -94,7 +94,7 @@ public class MapClient implements Map<String, String> {
         return shardId;
     }
 
-    static int objectToShardAlgorithm(String objectId, int numShards) {
+    private int objectToShardAlgorithm(String objectId, int numShards) {
 
         /*
 
@@ -104,7 +104,19 @@ public class MapClient implements Map<String, String> {
 
          */
         // For now always put all the objects into shard 0 because we need them to stay together
-        return 0;
+        return thisShard;
+    }
+    static int objectToShardAlgorithm(String objectId) {
+
+        /*
+
+        BigInteger iObject = new BigInteger(objectId, 16);
+
+        return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
+
+         */
+        // For now always put all the objects into shard 0 because we need them to stay together
+        return 1;
     }
 
     // This function returns a unique client ID every time it is called
@@ -457,12 +469,12 @@ public class MapClient implements Map<String, String> {
                 }
             }
 
-            if (tx.inputs.size() == 0) { // Transactions with no inputs are always sent to shard 0 (init functions).
-                logMsg(strLabel, strModule, "\n>> SUBMITTING INIT FUNCTION TO SHARD 0");
+            if (tx.inputs.size() == 0) { // Transactions with no inputs are init functions. Send to default shard
+                logMsg(strLabel, strModule, "\n>> SUBMITTING INIT FUNCTION TO SHARD "+ thisShard);
 
-                targetShards.add(0); // Add this shard to the list to be checked later
-                int requestId = send_TRANSACTION_SUBMIT_toShard(UNORDERED_REQUEST, 0, tx);
-                shardToRequestId.put(0, requestId);
+                targetShards.add(thisShard); // Add this shard to the list to be checked later
+                int requestId = send_TRANSACTION_SUBMIT_toShard(UNORDERED_REQUEST, thisShard, tx);
+                shardToRequestId.put(thisShard, requestId);
             }
 
 

@@ -138,9 +138,9 @@ public class Client {
         }
 
         // create clients for talking with other shards - connects directly to replica 0
-        client = new MapClient(shardConfigFile, 0, 0);
-        client.defaultShardID = 0;
-        System.out.println("Initialised MapClient to talk to shard 0, replica 0");
+        client = new MapClient(shardConfigFile, thisClient, 0);
+        client.defaultShardID = thisClient;
+        System.out.println("Initialised MapClient to talk to shard 1, replica 0");
 
         // start webservice
         try {
