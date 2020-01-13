@@ -1,3 +1,3 @@
 shardConfigFile ChainSpaceClientConfig/shardConfig.txt
-thisClient 0
+thisClient 1
 port 5001
