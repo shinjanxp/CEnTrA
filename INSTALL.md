@@ -5,10 +5,13 @@
 
 - Maven (macOS):
 	- brew install maven 
+	- sudo apt install maven
 
 - petlib:
 	- pip install petlib
-	
+
+- screen:
+	- sudo apt install screen
 # Install
 - create and activate the virtual environement
 ```
