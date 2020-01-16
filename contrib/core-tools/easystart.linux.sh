@@ -1,57 +1,16 @@
 #!/bin/bash
 rm -rf chainspacecore-*
 
-cp -r chainspacecore chainspacecore-0-0
-cd chainspacecore-0-0
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 0\nthisReplica 0" > ChainSpaceConfig/config.txt
-screen -dmSL s0n0 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-0-1
-cd chainspacecore-0-1
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 0\nthisReplica 1" > ChainSpaceConfig/config.txt
-screen -dmSL s0n1 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-0-2
-cd chainspacecore-0-2
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 0\nthisReplica 2" > ChainSpaceConfig/config.txt
-screen -dmSL s0n2 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-0-3
-cd chainspacecore-0-3
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 0\nthisReplica 3" > ChainSpaceConfig/config.txt
-screen -dmSL s0n3 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-1-0
-cd chainspacecore-1-0
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 1\nthisReplica 0" > ChainSpaceConfig/config.txt
-screen -dmSL s1n0 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-1-1
-cd chainspacecore-1-1
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 1\nthisReplica 1" > ChainSpaceConfig/config.txt
-screen -dmSL s1n1 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-1-2
-cd chainspacecore-1-2
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 1\nthisReplica 2" > ChainSpaceConfig/config.txt
-screen -dmSL s1n2 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
-sleep 1
-
-cp -r chainspacecore chainspacecore-1-3
-cd chainspacecore-1-3
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard 1\nthisReplica 3" > ChainSpaceConfig/config.txt
-screen -dmSL s1n3 java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
-cd ../
+for SHARD_ID in 0 1 2 # For each shard that we want to create. Every number here acts as the shard id
+do
+    for REPLICA_ID in 0 1 2 3 # For each replica that we want to create within a shard. Every number here acts as the replica id
+    do
+        SCREEN_NAME="s"$SHARD_ID"n"$REPLICA_ID
+        cp -r chainspacecore chainspacecore-$SHARD_ID-$REPLICA_ID
+        cd chainspacecore-$SHARD_ID-$REPLICA_ID
+        printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisShard $SHARD_ID\nthisReplica $REPLICA_ID" > ChainSpaceConfig/config.txt
+        screen -dmSL $SCREEN_NAME java -cp lib/bft-smart-1.2.1-UCL.jar:target/chainspace-1.0-SNAPSHOT-jar-with-dependencies.jar uk.ac.ucl.cs.sec.chainspace.bft.TreeMapServer ChainSpaceConfig/config.txt
+        cd ../
+        sleep 1
+    done
+done
