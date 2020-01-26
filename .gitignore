@@ -21,3 +21,4 @@ chainspacemeasurements/dist/
 chainspaceapi/build
 chainspaceapi/dist
 .vscode
+.ipynb_checkpoints

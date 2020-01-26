@@ -13,4 +13,9 @@ do
         cd ../
         sleep 1
     done
+    cd chainspacecore 
+    SCREEN_NAME="s"$SHARD_ID"-clientService"
+    screen -dmSL $SCREEN_NAME ./runclientservice.sh $SHARD_ID
+    cd ../
+    sleep 1
 done

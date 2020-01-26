@@ -20,7 +20,7 @@ start-nodes-debug:
 	./contrib/core-tools/easystart.mac.debug.sh
 
 tail-node:
-	tail -f chainspacecore-1-0/screenlog.0
+	tail -f chainspacecore-$(s)-$(r)/screenlog.0
 
 start-client-api:
 	cd chainspacecore && ./runclientservice.sh
@@ -35,6 +35,6 @@ kill-all:
 clean:
 	rm -rf chainspacecore-* && rm -rf chainspacecore/target
 
-deploy : kill-all clean build-jar start-nodes start-client-api
+redeploy : kill-all start-nodes 
 
 
