@@ -2,6 +2,7 @@ import hashlib
 import json
 from copy import deepcopy
 from contextlib import contextmanager
+from json    import dumps, loads
 
 
 import click
@@ -273,8 +274,11 @@ class ChainspaceObject(str):
         transaction_json = json.dumps(transaction, sort_keys=True, separators=(',', ':'))
         transaction_digest = hashlib.sha256(transaction_json).hexdigest()
         object_digest = hashlib.sha256(transaction['outputs'][output_index]).hexdigest()
+        prefix = ''
+        if loads(obj).has_key('location'):
+            prefix = str(loads(obj)['location']) + "_"
         object_id = '{}|{}|{}'.format(transaction_digest, object_digest, output_index)
-        object_id = hashlib.sha256(object_id).hexdigest()
+        object_id = prefix + hashlib.sha256(object_id).hexdigest()
         return ChainspaceObject(object_id, obj)
 
 

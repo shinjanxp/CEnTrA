@@ -1,7 +1,7 @@
 .DS_Store
 venv
 out
-.chainspace.env
+*.env
 checker.*.log.*
 checker.pids
 chainspacecore-*

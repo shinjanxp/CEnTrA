@@ -104,7 +104,7 @@ public class MapClient implements Map<String, String> {
 
          */
         // For now always put all the objects into shard 0 because we need them to stay together
-        return thisShard;
+        return Integer.parseInt(objectId.split("_")[0]);
     }
     static int objectToShardAlgorithm(String objectId) {
 

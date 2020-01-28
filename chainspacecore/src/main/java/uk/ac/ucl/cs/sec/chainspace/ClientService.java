@@ -228,6 +228,7 @@ class ClientService {
         try {
 
             // submit the transaction
+            System.out.println("ZGOD ClientService 231: "+ request.body());
             String result = Client.submitTransaction(request.body());
             System.out.println("Result from Client.submitTransaction is " + result);
 
