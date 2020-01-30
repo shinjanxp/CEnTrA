@@ -89,9 +89,14 @@ def create_surge_client(inputs, reference_inputs, parameters, priv):
         'pub':pub,
         'location':loads(inputs[0])['location']
     }
+    ebtoken = {
+        'type':'EBToken',
+        'pub':pub,
+        'location':loads(inputs[0])['location']
+    }
     # return
     return {
-        'outputs': ( dumps(new_surge_client), dumps(vote_slip)),
+        'outputs': ( dumps(new_surge_client), dumps(vote_slip), dumps(ebtoken)),
         'extra_parameters': (
             generate_sig(priv),
         )
@@ -108,26 +113,31 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
         # loads data
         surge_client = loads(outputs[0])
         vote_slip = loads(outputs[1])
+        ebtoken = loads(outputs[2])
         
         # check argument lengths
-        if len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 2 or len(returns) != 0:
+        if len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 3 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
         validate(surge_client, ['type','pub','location'])
         validate(vote_slip, ['type','pub','location'])
+        validate(ebtoken, ['type','pub','location'])
         
         # type checks
         # Since input can be InitToken or CSCVoteToken we cannot check type here
         check_type(surge_client, 'SurgeClient')
         check_type(vote_slip, 'VoteSlipToken')
+        check_type(ebtoken, 'EBToken')
         # explicit type checks
         if not(loads(inputs[0])['type'] == 'InitToken' or loads(inputs[0])['type'] == 'CSCVoteToken'):
             raise Exception("Invalid input token types")
         # equality checks
         equate(surge_client['pub'], parameters[0])
         equate(surge_client['pub'], vote_slip['pub'])
+        equate(surge_client['pub'], ebtoken['pub'])
         equate(surge_client['location'], vote_slip['location'])
         equate(surge_client['location'], loads(inputs[0])['location'])
+        equate(surge_client['location'], ebtoken['location'])
         
         # signature validation
         validate_sig(parameters[1], parameters[0])
@@ -154,7 +164,7 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
 
 
 # ------------------------------------------------------------------
-# cast csc vote
+# cast csc (create surge client) vote
 # NOTE:
 #   - cast a vote to allow a new client to be added to the platform
 #   - only 'inputs', 'reference_inputs' and 'parameters' are used to the framework
@@ -213,6 +223,67 @@ def cast_csc_vote_checker(inputs, reference_inputs, parameters, outputs, returns
         equate(vote_token['location'], vote_slip['location'])        
         # signature validation
         validate_sig(parameters[0], vote_slip['pub'])
+        
+    except Exception as e:
+        print e
+        return False
+    return True
+
+
+# ------------------------------------------------------------------
+# submit bid
+# NOTE:
+#   - make a bid for buying or selling some fixed unit of energy for the next time slot
+#   - inputs must contain a valid EBToken
+#   - outputs must contain a valid EBBuy or EBSell object and another EBToken
+#   - client's private key to be provided as extra argument to be used for signature
+#   - 
+# ------------------------------------------------------------------
+@contract.method('submit_bid')
+def submit_bid(inputs, reference_inputs, parameters, priv):
+    ebtoken = loads(inputs[0])
+    bid = {
+        'type' : parameters[0],
+        'quantity' : parameters[1],
+        'pub':ebtoken['pub'],
+        'location' : ebtoken['location']
+    }
+    return {
+        'outputs' : (dumps(bid), dumps(ebtoken)),
+        'extra_parameters': (generate_sig(priv),)
+    }
+# ------------------------------------------------------------------
+# check submit_bid
+# ------------------------------------------------------------------
+@contract.checker('submit_bid')
+def submit_bid_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+    try:
+
+        # loads data
+        old_ebtoken = loads(inputs[0])
+        bid = loads(outputs[0])
+        new_ebtoken = loads(outputs[1])
+        
+        # check argument lengths
+        if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=3 or len(outputs) != 2 or len(returns) != 0:
+            raise Exception("Invalid argument lengths")
+        # key validations
+        validate(old_ebtoken, ['type','pub','location'])
+        validate(bid, ['type', 'quantity', 'pub', 'location'])
+        validate(new_ebtoken, ['type','pub','location'])
+        # type checks
+        check_type(old_ebtoken, 'EBToken')
+        check_type(new_ebtoken, 'EBToken')
+        if not (bid['type'] == 'EBBuy' or bid['type'] == 'EBSell'):
+            raise Exception("Invalid bid type")
+        # equality checks
+        equate(old_ebtoken['pub'], bid['pub'])
+        equate(old_ebtoken['pub'], new_ebtoken['pub'])
+
+        equate(old_ebtoken['location'], bid['location'])
+        equate(old_ebtoken['location'], new_ebtoken['location'])        
+        # signature validation
+        validate_sig(parameters[2], old_ebtoken['pub'])
         
     except Exception as e:
         print e

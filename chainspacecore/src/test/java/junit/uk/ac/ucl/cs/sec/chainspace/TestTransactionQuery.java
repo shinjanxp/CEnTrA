@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -53,8 +54,8 @@ public class TestTransactionQuery {
 
     @Test
     public void retrieve_all_objects() throws SQLException {
-
-        List<TransactionQuery.ChainspaceObject> chainspaceObjects = transactionQuery.retrieveObjects();
+        List<Pair<String,String>> filters = new ArrayList<Pair<String,String>>();
+        List<TransactionQuery.ChainspaceObject> chainspaceObjects = transactionQuery.retrieveObjects(filters);
 
         for (TransactionQuery.ChainspaceObject object : chainspaceObjects) {
             System.out.println(object.toString());
