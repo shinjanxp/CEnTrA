@@ -6,8 +6,10 @@
 # general
 from hashlib import sha256
 from json    import dumps, loads
+import time, ast
 # chainspace
 from chainspacecontract import ChainspaceContract
+from chainspaceapi import ChainspaceClient
 # crypto
 from petlib.ecdsa import do_ecdsa_sign, do_ecdsa_verify
 from chainspacecontract.examples.utils import setup, key_gen, pack, unpack
@@ -15,6 +17,105 @@ from chainspacecontract.examples.utils import setup, key_gen, pack, unpack
 ## contract name
 contract = ChainspaceContract('surge')
 
+
+## Class definitions for clients
+DELTA = 10
+class SurgeClient:
+   
+    def __init__(self, init_token):
+        (self.priv, self.pub) = key_gen(setup())
+        self.client = ChainspaceClient(port=5000)
+        self.create_surge_client(init_token)
+        
+    def create_surge_client(self,init_token):
+        create_surge_client_txn = create_surge_client(
+            (init_token,),
+            None,
+            (pack(self.pub),),
+            pack(self.priv),
+        )
+        self.surge_client = create_surge_client_txn['transaction']['outputs'][0]
+        self.vote_slip = create_surge_client_txn['transaction']['outputs'][1]
+        self.ebtoken = create_surge_client_txn['transaction']['outputs'][2]
+        self.client.process_transaction(create_surge_client_txn)
+    
+    def cast_srep_vote(self, rep_pub):
+        cast_srep_vote_txn = cast_srep_vote(
+            (self.vote_slip,),
+            None,
+            None,
+            pack(self.priv),
+            pack(rep_pub),
+        )
+        vote_token = cast_srep_vote_txn['transaction']['outputs'][0]
+        self.vote_slip = cast_srep_vote_txn['transaction']['outputs'][1]
+        self.client.process_transaction(cast_srep_vote_txn)
+        return vote_token
+    
+    def submit_bid(self, bid_type, quantity):
+        bid_proof_txn = submit_bid_proof(
+            (self.ebtoken,),
+            None,
+            (bid_type,),
+            pack(self.priv),
+            quantity
+        )
+        bid_proof = bid_proof_txn['transaction']['outputs'][0]
+        self.ebtoken = bid_proof_txn['transaction']['outputs'][1]
+        self.client.process_transaction(bid_proof_txn)
+        # wait for others to submit their bid proofs
+        time.sleep(2*DELTA)
+        
+        bid_txn = submit_bid(
+            (bid_proof,),
+            None,
+            (quantity,),
+            pack(self.priv)
+        )
+        bid = bid_txn['transaction']['outputs'][0]
+        self.client.process_transaction(bid_txn)
+        return bid
+        
+class SREPClient:
+    (priv, pub) = key_gen(setup())
+    client = ChainspaceClient(port=5000)
+    
+    def create_srep_client(self, vote_tokens):
+        create_srep_client_txn = create_srep_client(
+            vote_tokens,
+            None,
+            (pack(self.pub),),
+            pack(self.priv),
+        )
+        self.vote_slip = create_srep_client_txn['transaction']['outputs'][1]
+        self.srep_client = create_srep_client_txn['transaction']['outputs'][0]
+        self.client.process_transaction(create_srep_client_txn)
+        
+    def accept_bids(self):
+        time.sleep(DELTA)
+        bid_proofs = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'BidProof'})
+        bidders = {}
+        for bid in bid_proofs:
+            bid = ast.literal_eval(bid)
+            bidders[str(bid['quantity_sig'])]= True
+        
+        time.sleep(2*DELTA)
+        buy_bids = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBBuy'})
+        sell_bids = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBSell'})
+        # process bid
+        accepted_bids = []
+        for bid in buy_bids:
+            if not bidders.has_key(ast.literal_eval(bid)['quantity_sig']):
+                continue
+            accepted_bids.append(bid)
+            
+        
+        for bid in sell_bids:
+            if not bidders.has_key(ast.literal_eval(bid)['quantity_sig']):
+                continue
+            accepted_bids.append(bid)
+            
+        
 ## Helper functions
 def pb():
     print "**********************  BEGIN  ******************************"
@@ -36,19 +137,19 @@ def equate(a, b):
     if a!=b:
         raise Exception(str(a) + "not equal to " + str(b))
 
-def generate_sig(priv):
+def generate_sig(priv, msg = "proof"):
     hasher = sha256()
-    hasher.update("proof")
+    hasher.update(msg)
 
     # sign message
     G = setup()[0]
     sig = do_ecdsa_sign(G, unpack(priv), hasher.digest())
     return pack(sig)
 
-def validate_sig(sig, pub):
+def validate_sig(sig, pub, msg="proof"):
     # check that the signature on the proof is correct
     hasher = sha256()
-    hasher.update("proof")
+    hasher.update(msg)
     # verify signature
     (G, _, _, _) = setup()
     if not do_ecdsa_verify(G, unpack(pub), unpack(sig), hasher.digest()):
@@ -380,26 +481,91 @@ def create_srep_client_checker(inputs, reference_inputs, parameters, outputs, re
     return True
 
 
+
+
+# ------------------------------------------------------------------
+# submit bid proof
+# NOTE:
+#   - before making a bit each client must submit a bid hash to prove the bid value
+#   - inputs must contain a valid EBToken
+#   - parameters must contain the bid type
+#   - outputs must contain a valid BidProof and another EBToken
+#   - client's private key to be provided as extra argument to be used for signature
+#   - bid quantity to be provided as extra argument 
+# ------------------------------------------------------------------
+@contract.method('submit_bid_proof')
+def submit_bid_proof(inputs, reference_inputs, parameters, priv, quantity):
+    ebtoken = loads(inputs[0])
+    bid_proof = {
+        'type':'BidProof',
+        'bid_type' : parameters[0],
+        'quantity_sig' : generate_sig(priv, '{}|{}'.format(quantity, ebtoken['pub'])),
+        'pub':ebtoken['pub'],
+        'location' : ebtoken['location']
+    }
+    return {
+        'outputs' : (dumps(bid_proof), dumps(ebtoken)),
+        'extra_parameters': (generate_sig(priv),)
+    }
+# ------------------------------------------------------------------
+# check submit_bid_proof
+# ------------------------------------------------------------------
+@contract.checker('submit_bid_proof')
+def submit_bid_proof_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+    try:
+
+        # loads data
+        old_ebtoken = loads(inputs[0])
+        bid_proof = loads(outputs[0])
+        new_ebtoken = loads(outputs[1])
+        
+        # check argument lengths
+        if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 2 or len(returns) != 0:
+            raise Exception("Invalid argument lengths")
+        # key validations
+        validate(old_ebtoken, ['type','pub','location'])
+        validate(bid_proof, ['type', 'bid_type', 'quantity_sig', 'pub', 'location'])
+        validate(new_ebtoken, ['type','pub','location'])
+        # type checks
+        check_type(old_ebtoken, 'EBToken')
+        check_type(new_ebtoken, 'EBToken')
+        check_type(bid_proof, 'BidProof')
+        # equality checks
+        equate(old_ebtoken['pub'], bid_proof['pub'])
+        equate(old_ebtoken['pub'], new_ebtoken['pub'])
+
+        equate(old_ebtoken['location'], bid_proof['location'])
+        equate(old_ebtoken['location'], new_ebtoken['location'])        
+        # signature validation
+        validate_sig(parameters[1], old_ebtoken['pub'])
+        
+    except Exception as e:
+        print e
+        return False
+    return True
+
+
 # ------------------------------------------------------------------
 # submit bid
 # NOTE:
 #   - make a bid for buying or selling some fixed unit of energy for the next time slot
-#   - inputs must contain a valid EBToken
-#   - outputs must contain a valid EBBuy or EBSell object and another EBToken
+#   - inputs must contain a valid BidProof object
+#   - outputs must contain a valid EBBuy or EBSell object
 #   - client's private key to be provided as extra argument to be used for signature
 #   - 
 # ------------------------------------------------------------------
 @contract.method('submit_bid')
 def submit_bid(inputs, reference_inputs, parameters, priv):
-    ebtoken = loads(inputs[0])
+    bid_proof = loads(inputs[0])
     bid = {
-        'type' : parameters[0],
-        'quantity' : parameters[1],
-        'pub':ebtoken['pub'],
-        'location' : ebtoken['location']
+        'type' : bid_proof['bid_type'],
+        'quantity' : parameters[0],
+        'quantity_sig':bid_proof['quantity_sig'],
+        'pub':bid_proof['pub'],
+        'location' : bid_proof['location']
     }
     return {
-        'outputs' : (dumps(bid), dumps(ebtoken)),
+        'outputs' : (dumps(bid),),
         'extra_parameters': (generate_sig(priv),)
     }
 # ------------------------------------------------------------------
@@ -410,30 +576,30 @@ def submit_bid_checker(inputs, reference_inputs, parameters, outputs, returns, d
     try:
 
         # loads data
-        old_ebtoken = loads(inputs[0])
+        bid_proof = loads(inputs[0])
         bid = loads(outputs[0])
-        new_ebtoken = loads(outputs[1])
         
         # check argument lengths
-        if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=3 or len(outputs) != 2 or len(returns) != 0:
+        if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 1 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(old_ebtoken, ['type','pub','location'])
-        validate(bid, ['type', 'quantity', 'pub', 'location'])
-        validate(new_ebtoken, ['type','pub','location'])
+        validate(bid_proof, ['type', 'bid_type', 'quantity_sig','pub','location'])
+        validate(bid, ['type', 'quantity', 'quantity_sig', 'pub', 'location'])
         # type checks
-        check_type(old_ebtoken, 'EBToken')
-        check_type(new_ebtoken, 'EBToken')
+        check_type(bid_proof, 'BidProof')
         if not (bid['type'] == 'EBBuy' or bid['type'] == 'EBSell'):
             raise Exception("Invalid bid type")
         # equality checks
-        equate(old_ebtoken['pub'], bid['pub'])
-        equate(old_ebtoken['pub'], new_ebtoken['pub'])
+        equate(bid_proof['pub'], bid['pub'])
+        equate(bid_proof['quantity_sig'], bid['quantity_sig'])
 
-        equate(old_ebtoken['location'], bid['location'])
-        equate(old_ebtoken['location'], new_ebtoken['location'])        
+        equate(bid_proof['location'], bid['location'])     
         # signature validation
-        validate_sig(parameters[2], old_ebtoken['pub'])
+        validate_sig(parameters[1], bid_proof['pub'])
+
+        # quantity signature validation
+        validate_sig(bid_proof['quantity_sig'], bid_proof['pub'], '{}|{}'.format(bid['quantity'], bid['pub']))
+
         
     except Exception as e:
         print e

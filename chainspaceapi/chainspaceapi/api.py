@@ -28,15 +28,24 @@ class ChainspaceClient(object):
         r = requests.post(endpoint, json=transaction)
         return r
 
-    def get_objects(self, filters):
+    def get_objects(self, filters={}):
         endpoint = self.url + '/api/1.0/objects'
-        r = requests.get(endpoint, params=filters)
+        r = requests.get(endpoint, params={'status':1})
         print r.url
         print "HTTP/1.1 " + str(r.status_code) + " " + r.reason
-        print r.json()
+        # print r.json()
         objects = []
         for i in r.json():
             obj = ast.literal_eval(dumps(i))
-            objects.append(ChainspaceObject(obj['id'], obj['value']))
+            csobj = ChainspaceObject(obj['id'], obj['value'])
+            accept = True
+            for key, value in filters.items():
+                obj = ast.literal_eval(str(csobj))
+                if obj[key] != value:
+                    accept = False
+                    break
+            if not accept:
+                continue
+            objects.append(csobj)
         return objects
         
