@@ -49,9 +49,16 @@ public class TransactionQuery {
         return transactionDigests;
     }
 
-    public  List<ChainspaceObject> retrieveObjects() throws SQLException {
+    public  List<ChainspaceObject> retrieveObjects(List<Pair<String,String>> filters) throws SQLException {
         String sql = "SELECT * from data";
-
+        if(!filters.isEmpty()){
+            sql+= " where ";
+            for(Pair<String,String> f: filters){
+                sql+= f.getValue1() + " = " + "'" + f.getValue2() + "'" + " and ";
+            }
+            sql = sql.substring(0, sql.length()-5);
+        }
+        
         List<ChainspaceObject> chainspaceObjects = new ArrayList<>();
 
 

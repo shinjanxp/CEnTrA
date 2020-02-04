@@ -14,13 +14,13 @@ dist:
 	./contrib/core-tools/build-node-dist.sh
 
 start-nodes:
-	./contrib/core-tools/easystart.mac.sh
+	./contrib/core-tools/easystart.linux.sh
 
 start-nodes-debug:
 	./contrib/core-tools/easystart.mac.debug.sh
 
 tail-node:
-	tail -f chainspacecore-0-0/screenlog.0
+	tail -f chainspacecore-$(s)-$(r)/screenlog.0
 
 start-client-api:
 	cd chainspacecore && ./runclientservice.sh
@@ -32,6 +32,9 @@ curl-client-api:
 kill-all:
 	ps aux | grep -v grep | grep chainspace | awk '{print $$2}' | xargs kill
 
+clean:
+	rm -rf chainspacecore-* && rm -rf chainspacecore/target
 
+redeploy : kill-all start-nodes 
 
 

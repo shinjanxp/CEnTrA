@@ -120,6 +120,7 @@ class SQLiteConnector extends DatabaseConnector {
         String sql = "INSERT INTO data (object_id, object, status) VALUES (?, ?, 1)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < objects.length; i++) {
+                System.out.println("ZGOD Sqliteconnector 123: "+objects[i]);
                 String objectID = Utils.generateObjectID(transactionID, objects[i], i);
                 statement.setString(1, objectID);
                 statement.setString(2, objects[i]);

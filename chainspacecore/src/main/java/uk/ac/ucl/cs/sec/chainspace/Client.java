@@ -24,7 +24,8 @@ public class Client {
 
 
     // CONFIG -- port number
-    public static final int PORT = initialisePort();
+    // public static final int PORT = initialisePort();
+    public static int PORT;
 
     private static SimpleLogger slogger;
 
@@ -38,9 +39,6 @@ public class Client {
 
 
 
-    private static int initialisePort() {
-        return new Integer(System.getProperty("client.api.port", "5001"));
-    }
     /**
      * loadConfiguration
      * Load the configuration file.
@@ -61,6 +59,14 @@ public class Client {
         }
         else {
             out.println("Could not find configuration for shardConfigFile.");
+            done = false;
+        }
+
+        if(configData.containsKey(ClientConfig.port)) {
+            PORT = Integer.parseInt(configData.get(ClientConfig.port));
+        }
+        else {
+            out.println("Could not find configuration for port.");
             done = false;
         }
 
@@ -138,9 +144,9 @@ public class Client {
         }
 
         // create clients for talking with other shards - connects directly to replica 0
-        client = new MapClient(shardConfigFile, 0, 0);
-        client.defaultShardID = 0;
-        System.out.println("Initialised MapClient to talk to shard 0, replica 0");
+        client = new MapClient(shardConfigFile, thisClient, 0);
+        client.defaultShardID = thisClient;
+        System.out.println("Initialised MapClient to talk to shard 1, replica 0");
 
         // start webservice
         try {

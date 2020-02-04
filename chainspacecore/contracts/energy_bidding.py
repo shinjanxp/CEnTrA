@@ -1,0 +1,1 @@
+../../chainspacecontract/chainspacecontract/examples/energy_bidding.py

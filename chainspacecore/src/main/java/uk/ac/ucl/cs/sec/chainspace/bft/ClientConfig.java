@@ -6,4 +6,5 @@ package uk.ac.ucl.cs.sec.chainspace.bft;
 public class ClientConfig {
     public static final String shardConfigFile = "shardConfigFile";
     public static final String thisClient = "thisClient";
+    public static final String port = "port";
 }

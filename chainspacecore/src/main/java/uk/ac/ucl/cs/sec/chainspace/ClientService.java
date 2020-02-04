@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
 
 import static uk.ac.ucl.cs.sec.chainspace.bft.ResponseType.ACCEPTED_T_COMMIT;
 
@@ -164,11 +165,17 @@ class ClientService {
 
     private String getObjects(Request request, Response response) throws SQLException {
         response.type("application/json");
+        // System.out.println("ZGOD CLientservice 167: "+ request.queryParamsValues("status")[0]);
+        List<Pair<String,String>> filters = new ArrayList<Pair<String,String>>();
+        for(String q:request.queryParams()){
+            filters.add(new Pair<String, String>(q, request.queryParamsValues(q)[0]));
+        }
+        // queryParams.add()
         try (Connection conn = initDbConnection()) {
 
             TransactionQuery query = new TransactionQuery(conn);
 
-            List<TransactionQuery.ChainspaceObject> csObjects = query.retrieveObjects();
+            List<TransactionQuery.ChainspaceObject> csObjects = query.retrieveObjects(filters);
 
             JSONArray responseJson = new JSONArray();
 
@@ -228,6 +235,7 @@ class ClientService {
         try {
 
             // submit the transaction
+            System.out.println("ZGOD ClientService 231: "+ request.body());
             String result = Client.submitTransaction(request.body());
             System.out.println("Result from Client.submitTransaction is " + result);
 

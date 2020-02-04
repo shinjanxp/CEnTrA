@@ -180,7 +180,7 @@ from chainspaceapi import ChainspaceClient
 from chainspacecontract.examples import increment
 
 
-client = ChainspaceClient()
+client = ChainspaceClient(port=5001)
 
 
 transaction1 = increment.init()

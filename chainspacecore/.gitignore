@@ -3,3 +3,7 @@ out
 target
 *.iml
 test.process.id
+.classpath
+.project
+.settings
+screenlog*

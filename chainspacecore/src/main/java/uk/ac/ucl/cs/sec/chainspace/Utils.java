@@ -82,7 +82,12 @@ public class Utils {
      * Create an object ID from the object and the trasaction that created it.
      */
     public static String generateObjectID(String transactionID, String object, int idx) throws NoSuchAlgorithmException {
-        return Utils.hash(transactionID + "|" + Utils.hash(object) + "|" + idx);
+        JSONObject obj = new JSONObject(object);
+        String prefix="";
+        if(obj.has("location")){
+            prefix = obj.getInt("location") + "_";
+        }
+        return prefix + Utils.hash(transactionID + "|" + Utils.hash(object) + "|" + idx);
     }
 
 
