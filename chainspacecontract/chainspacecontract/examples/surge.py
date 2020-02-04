@@ -22,15 +22,18 @@ contract = ChainspaceContract('surge')
 ## Class definitions for clients
 DELTA = 5
 class SurgeClient:
-   
-    def __init__(self, init_token):
-        (self.priv, self.pub) = key_gen(setup())
-        self.client = ChainspaceClient(port=5000)
-        self.create_surge_client(init_token)
         
-    def create_surge_client(self,init_token):
+    def __init__(self, port, init_token=None):
+        (self.priv, self.pub) = key_gen(setup())
+        self.cs_client = ChainspaceClient(port=5000)
+        if init_token:
+            self.create_surge_client(init_token)
+        
+    def create_surge_client(self,token):
+        if type(token) is not tuple:
+            token = (token,)
         create_surge_client_txn = create_surge_client(
-            (init_token,),
+            token,
             None,
             (pack(self.pub),),
             pack(self.priv),
@@ -38,8 +41,21 @@ class SurgeClient:
         self.surge_client = create_surge_client_txn['transaction']['outputs'][0]
         self.vote_slip = create_surge_client_txn['transaction']['outputs'][1]
         self.ebtoken = create_surge_client_txn['transaction']['outputs'][2]
-        self.client.process_transaction(create_surge_client_txn)
+        self.cs_client.process_transaction(create_surge_client_txn)
     
+    def cast_csc_vote(self, client_pub):
+        cast_csc_vote_txn = cast_csc_vote(
+            (self.vote_slip,),
+            None,
+            None,
+            pack(self.priv),
+            pack(client_pub),
+        )
+        vote_token = cast_csc_vote_txn['transaction']['outputs'][0]
+        self.vote_slip = cast_csc_vote_txn['transaction']['outputs'][1]
+        self.cs_client.process_transaction(cast_csc_vote_txn)
+        return vote_token
+
     def cast_srep_vote(self, rep_pub):
         cast_srep_vote_txn = cast_srep_vote(
             (self.vote_slip,),
@@ -50,7 +66,7 @@ class SurgeClient:
         )
         vote_token = cast_srep_vote_txn['transaction']['outputs'][0]
         self.vote_slip = cast_srep_vote_txn['transaction']['outputs'][1]
-        self.client.process_transaction(cast_srep_vote_txn)
+        self.cs_client.process_transaction(cast_srep_vote_txn)
         return vote_token
     
     def submit_bid(self, bid_type, quantity):
@@ -63,7 +79,7 @@ class SurgeClient:
         )
         bid_proof = bid_proof_txn['transaction']['outputs'][0]
         self.ebtoken = bid_proof_txn['transaction']['outputs'][1]
-        self.client.process_transaction(bid_proof_txn)
+        self.cs_client.process_transaction(bid_proof_txn)
         # wait for others to submit their bid proofs
         time.sleep(2*DELTA)
         
@@ -74,14 +90,13 @@ class SurgeClient:
             pack(self.priv)
         )
         bid = bid_txn['transaction']['outputs'][0]
-        self.client.process_transaction(bid_txn)
+        self.cs_client.process_transaction(bid_txn)
         return bid
         
-class SREPClient:
-    (priv, pub) = key_gen(setup())
-    client = ChainspaceClient(port=5000)
+class SREPClient (SurgeClient):
     
-    def create_srep_client(self, vote_tokens):
+    def create_srep_client(self, srep_port, vote_tokens):
+        self.srep_cs_client = ChainspaceClient(port=srep_port)
         create_srep_client_txn = create_srep_client(
             vote_tokens,
             None,
@@ -90,19 +105,19 @@ class SREPClient:
         )
         self.vote_slip = create_srep_client_txn['transaction']['outputs'][1]
         self.srep_client = create_srep_client_txn['transaction']['outputs'][0]
-        self.client.process_transaction(create_srep_client_txn)
+        self.srep_cs_client.process_transaction(create_srep_client_txn)
         
     def accept_bids(self):
         time.sleep(DELTA)
-        bid_proofs = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'BidProof'})
+        bid_proofs = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'BidProof'})
         bidders = {}
         for bid in bid_proofs:
             bid = loads(bid)
             bidders[str(bid['quantity_sig'])]= True
         
         time.sleep(2*DELTA)
-        buy_bids = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBBuy'})
-        sell_bids = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBSell'})
+        buy_bids = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBBuy'})
+        sell_bids = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBSell'})
         # process bid
         accepted_bids = []
         for bid in buy_bids:
@@ -113,6 +128,8 @@ class SREPClient:
             if not bidders.has_key(loads(bid)['quantity_sig']):
                 continue
             accepted_bids.append(bid)
+        if len(accepted_bids)==0:
+            return None
         accept_bids_txn = accept_bids(
             tuple(accepted_bids),
             None,
@@ -120,7 +137,7 @@ class SREPClient:
             pack(self.priv),
         )
         bid_accept = accept_bids_txn['transaction']['outputs'][0]
-        self.client.process_transaction(accept_bids_txn)
+        self.srep_cs_client.process_transaction(accept_bids_txn)
         return bid_accept
         
 ## Helper functions
@@ -176,7 +193,9 @@ def init():
         'outputs': (dumps({'type' : 'InitToken', 'location':0}),
         dumps({'type' : 'InitToken', 'location':0}),
         dumps({'type' : 'InitToken', 'location':1}),
-        dumps({'type' : 'InitToken', 'location':1})),
+        dumps({'type' : 'InitToken', 'location':1}),
+        dumps({'type' : 'InitToken', 'location':2}),
+        dumps({'type' : 'InitToken', 'location':2})),
     }
 
 # ------------------------------------------------------------------
@@ -227,7 +246,7 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
         ebtoken = loads(outputs[2])
         
         # check argument lengths
-        if len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 3 or len(returns) != 0:
+        if len(inputs) < 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 3 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
         validate(surge_client, ['type','pub','location'])
