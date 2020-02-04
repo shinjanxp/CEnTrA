@@ -27,6 +27,11 @@ class ChainspaceClient(object):
         endpoint = self.url + '/api/1.0/transaction/dump'
         r = requests.post(endpoint, json=transaction)
         return r
+    
+    def fix_json(self, obj):
+        obj = ast.literal_eval(obj)
+        obj = dumps(obj)
+        return obj
 
     def get_objects(self, filters={}):
         endpoint = self.url + '/api/1.0/objects'
@@ -36,8 +41,8 @@ class ChainspaceClient(object):
         # print r.json()
         objects = []
         for i in r.json():
-            obj = ast.literal_eval(dumps(i))
-            csobj = ChainspaceObject(obj['id'], obj['value'])
+            obj = loads(self.fix_json(dumps(i)))
+            csobj = ChainspaceObject(obj['id'], dumps(obj['value']))
             accept = True
             for key, value in filters.items():
                 obj = ast.literal_eval(str(csobj))

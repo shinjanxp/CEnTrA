@@ -7,6 +7,7 @@
 from hashlib import sha256
 from json    import dumps, loads
 import time, ast
+import traceback
 # chainspace
 from chainspacecontract import ChainspaceContract
 from chainspaceapi import ChainspaceClient
@@ -19,7 +20,7 @@ contract = ChainspaceContract('surge')
 
 
 ## Class definitions for clients
-DELTA = 10
+DELTA = 5
 class SurgeClient:
    
     def __init__(self, init_token):
@@ -96,7 +97,7 @@ class SREPClient:
         bid_proofs = self.client.get_objects({'location':loads(self.srep_client)['location'], 'type':'BidProof'})
         bidders = {}
         for bid in bid_proofs:
-            bid = ast.literal_eval(bid)
+            bid = loads(bid)
             bidders[str(bid['quantity_sig'])]= True
         
         time.sleep(2*DELTA)
@@ -105,16 +106,22 @@ class SREPClient:
         # process bid
         accepted_bids = []
         for bid in buy_bids:
-            if not bidders.has_key(ast.literal_eval(bid)['quantity_sig']):
+            if not bidders.has_key(loads(bid)['quantity_sig']):
                 continue
             accepted_bids.append(bid)
-            
-        
         for bid in sell_bids:
-            if not bidders.has_key(ast.literal_eval(bid)['quantity_sig']):
+            if not bidders.has_key(loads(bid)['quantity_sig']):
                 continue
             accepted_bids.append(bid)
-            
+        accept_bids_txn = accept_bids(
+            tuple(accepted_bids),
+            None,
+            (pack(self.pub),),
+            pack(self.priv),
+        )
+        bid_accept = accept_bids_txn['transaction']['outputs'][0]
+        self.client.process_transaction(accept_bids_txn)
+        return bid_accept
         
 ## Helper functions
 def pb():
@@ -603,6 +610,78 @@ def submit_bid_checker(inputs, reference_inputs, parameters, outputs, returns, d
         
     except Exception as e:
         print e
+        return False
+    return True
+
+
+
+# ------------------------------------------------------------------
+# accept bids
+# NOTE:
+#   - SREP executes this contract to accept bids and calculate diff
+#   - inputs must contain list of EBBuy or EBSell objects
+#   - outputs must contain a valid EBAccept object
+#   - client's private key to be provided as extra argument to be used for signature
+#   - 
+# ------------------------------------------------------------------
+@contract.method('accept_bids')
+def accept_bids(inputs, reference_inputs, parameters, priv):
+    total_buy = 0
+    total_sell = 0
+    for bid in inputs:
+        b = loads(bid)
+        if b['type'] == 'EBBuy':
+            total_buy+= b['quantity']
+        if b['type'] == 'EBSell':
+            total_sell+= b['quantity']
+    
+    bid_accept = {
+        'type' : 'BidAccept',
+        'total_buy' : total_buy,
+        'total_sell' : total_sell,
+        'pub': parameters[0],
+        'location' : loads(inputs[0])['location']
+    }
+    return {
+        'outputs' : (dumps(bid_accept),),
+        'extra_parameters': (generate_sig(priv),)
+    }
+# ------------------------------------------------------------------
+# check accept_bids
+# ------------------------------------------------------------------
+@contract.checker('accept_bids')
+def accept_bids_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+    try:
+
+        # loads data
+        bid_accept = loads(outputs[0])
+        
+        # check argument lengths
+        if len(inputs) < 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 1 or len(returns) != 0:
+            raise Exception("Invalid argument lengths")
+        # key validations
+        validate(bid_accept, ['type', 'total_buy', 'total_sell','pub','location'])
+        # type checks
+        check_type(bid_accept, 'BidAccept')
+        # equality checks
+        total_buy = 0
+        total_sell = 0
+        for bid in inputs:
+            b = loads(bid)
+            equate(bid_accept['location'], b['location'])
+            if b['type'] == 'EBBuy':
+                total_buy+= b['quantity']
+            if b['type'] == 'EBSell':
+                total_sell+= b['quantity']
+
+        equate(total_buy, bid_accept['total_buy'])
+        equate(total_sell, bid_accept['total_sell'])
+        # signature validation
+        validate_sig(parameters[1], parameters[0])
+
+        
+    except Exception as e:
+        traceback.print_exc()
         return False
     return True
 
