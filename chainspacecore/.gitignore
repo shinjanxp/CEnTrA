@@ -7,3 +7,4 @@ test.process.id
 .project
 .settings
 screenlog*
+ChainSpaceConfig/shards/config*
