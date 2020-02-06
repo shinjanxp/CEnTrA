@@ -25,9 +25,9 @@ contract = ChainspaceContract('surge')
 DELTA = 5
 class SurgeClient:
         
-    def __init__(self, port, init_token=None):
+    def __init__(self, host='127.0.0.1', port=5000, init_token=None):
         (self.priv, self.pub) = key_gen(setup())
-        self.cs_client = ChainspaceClient(port=5000)
+        self.cs_client = ChainspaceClient(host=host, port=port)
         if init_token:
             self.create_surge_client(init_token)
         
