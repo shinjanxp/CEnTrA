@@ -1,0 +1,133 @@
+2020-02-05 12:19:20,593 INFO     Starting test_surge_bids
+2020-02-05 12:19:35,000 INFO     Starting test_surge_bids
+2020-02-05 12:19:35,052 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:38,628 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:38,748 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:39,181 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:39,233 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:39,652 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:39,701 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:42,936 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:42,990 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:43,409 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:43,461 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:45,882 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 502 None
+2020-02-05 12:19:45,932 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:49,159 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:49,200 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:49,618 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:49,658 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:50,128 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:50,167 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:50,580 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:50,620 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:51,031 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:51,071 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:51,484 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:51,524 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5001
+2020-02-05 12:19:52,317 DEBUG    http://127.0.0.1:5001 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:52,474 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:52,483 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:52,487 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:52,497 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:19:52,888 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:52,929 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:53,129 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:19:53,173 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:20:50,618 INFO     Execution took 0.806106090546
+2020-02-05 12:21:51,786 INFO     Starting test_surge_bids
+2020-02-05 12:21:51,823 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:21:55,555 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:21:55,671 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:21:56,100 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:21:56,151 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:21:56,573 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:21:56,622 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:21:59,850 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:21:59,906 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:00,526 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:00,581 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:00,600 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 502 None
+2020-02-05 12:22:00,648 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:00,662 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 502 None
+2020-02-05 12:22:00,699 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:01,116 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:01,155 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:01,570 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:01,611 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:02,029 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:02,069 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:02,484 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:02,525 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:02,939 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:02,989 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5001
+2020-02-05 12:22:03,730 DEBUG    http://127.0.0.1:5001 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:03,889 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:03,890 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:03,904 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:03,910 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:22:04,512 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:04,534 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:04,536 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:04,577 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:22:04,581 INFO     Execution took 0.794279098511
+2020-02-05 12:24:04,367 INFO     Starting test_surge_bids
+2020-02-05 12:24:04,403 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:08,157 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:08,280 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:08,711 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:08,760 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:09,181 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:09,233 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:12,470 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:12,521 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:12,940 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:13,004 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:13,023 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 502 None
+2020-02-05 12:24:13,071 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:13,086 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 502 None
+2020-02-05 12:24:13,122 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:13,538 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:13,578 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:13,994 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:14,034 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:14,449 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:14,488 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:14,903 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:14,941 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:15,356 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:15,395 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5001
+2020-02-05 12:24:16,129 DEBUG    http://127.0.0.1:5001 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:16,278 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:16,295 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:16,303 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:16,308 DEBUG    Starting new HTTP connection (1): 127.0.0.1:5000
+2020-02-05 12:24:16,694 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:16,740 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:16,954 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:16,956 DEBUG    http://127.0.0.1:5000 "POST /api/1.0/transaction/process HTTP/1.1" 200 None
+2020-02-05 12:24:16,966 INFO     Execution took 0.780124187469
+2020-02-05 12:54:14,404 INFO     Starting test_surge_bids
+2020-02-05 15:07:26,256 INFO     Starting test_surge_bids
+2020-02-05 15:28:43,243 INFO     Starting test_surge_bids
+2020-02-05 15:29:53,393 INFO     Starting test_surge_bids
+2020-02-05 15:34:07,001 INFO     Starting test_surge_bids
+2020-02-05 15:35:23,640 INFO     Starting test_surge_bids
+2020-02-05 15:36:29,745 INFO     Starting test_surge_bids
+2020-02-05 15:39:13,470 INFO     Starting test_surge_bids
+2020-02-05 15:39:51,380 INFO     Starting test_surge_bids
+2020-02-05 15:44:11,155 INFO     Starting test_surge_bids
+2020-02-05 15:45:18,300 INFO     Starting test_surge_bids
+2020-02-05 17:48:30,273 INFO     Starting test_surge_bids
+2020-02-05 17:54:24,177 INFO     Starting test_surge_bids
+2020-02-06 10:42:21,114 INFO     Starting test_surge_bids
+2020-02-06 10:42:48,614 INFO     Starting test_surge_bids
+2020-02-06 10:44:02,697 INFO     Starting test_surge_bids
+2020-02-06 10:49:26,204 INFO     Starting test_surge_bids
+2020-02-06 10:50:23,449 INFO     Starting test_surge_bids
+2020-02-06 10:56:54,875 INFO     Starting test_surge_bids
+2020-02-06 10:56:54,884 INFO     NUM_SHARDS: 2, NUM_REPLICAS: 8, NUM_CLIENTS: 4 
+2020-02-06 10:57:06,506 INFO     Execution took 1.13744091988
+2020-02-06 10:59:43,236 INFO     Starting test_surge_bids
+2020-02-06 10:59:43,244 INFO     NUM_SHARDS: 2, NUM_REPLICAS: 8, NUM_CLIENTS: 10 
+2020-02-06 11:00:01,129 INFO     Execution took 2.03497505188

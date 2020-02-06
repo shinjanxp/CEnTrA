@@ -1,21 +1,30 @@
 #!/bin/bash
-rm -rf chainspacecore-*
 # Set these values
-NUM_SHARDS=3
-NUM_REPLICAS=4
+exec 6< surge-experiments/setup.in
+read NUM_SHARDS <&6
+read NUM_REPLICAS <&6
+read NUM_CLIENTS <&6
+export NUM_SHARDS
+export NUM_REPLICAS
+export NUM_CLIENTS
+cd surge-experiments
+screen -dmSL surge-experiments-setup python -m SimpleHTTPServer 4999
+cd ..
 
-NUM_REPLICAS=$(($NUM_REPLICAS-1))
-NUM_SHARDS=$(($NUM_SHARDS-1))
+rm -rf chainspacecore-*
+printf "$(date) Deployed shards: $NUM_SHARDS , replicas: $NUM_REPLICAS\n" >> surge-experiments/deploy-log.txt
+# NUM_REPLICAS=$(($NUM_REPLICAS-1))
+# NUM_SHARDS=$(($NUM_SHARDS-1))
 
 # For each shard create config directories inside chainspacecore/ChainSpaceConfig and set the port 
 > chainspacecore/ChainSpaceConfig/shardConfig.txt # empty the shard config file
 rm -r chainspacecore/ChainSpaceConfig/shards/config*
 
-for SHARD_ID in $(seq 0 $NUM_SHARDS) 
+for SHARD_ID in $(seq 0 $(($NUM_SHARDS-1))) 
 do
     cp -r chainspacecore/ChainSpaceConfig/shards/base_config chainspacecore/ChainSpaceConfig/shards/config$SHARD_ID
     printf "$SHARD_ID ChainSpaceConfig/shards/config$SHARD_ID\n" >> chainspacecore/ChainSpaceConfig/shardConfig.txt
-    for REPLICA_ID in $(seq 0 $NUM_REPLICAS) # Create host configs for each replica i.e. set the port
+    for REPLICA_ID in $(seq 0 $(($NUM_REPLICAS-1))) # Create host configs for each replica i.e. set the port
     do
         PORT=$((10000 + $SHARD_ID*1000 + 2*$REPLICA_ID))
         printf "$REPLICA_ID 127.0.0.1 $PORT\n" >> chainspacecore/ChainSpaceConfig/shards/config$SHARD_ID/hosts.config
@@ -23,9 +32,9 @@ do
 done
 # Config done
 
-for SHARD_ID in $(seq 0 $NUM_SHARDS) # For each shard that we want to create. Every number here acts as the shard id
+for SHARD_ID in $(seq 0 $(($NUM_SHARDS-1))) # For each shard that we want to create. Every number here acts as the shard id
 do
-    for REPLICA_ID in $(seq 0 $NUM_REPLICAS) # For each replica that we want to create within a shard. Every number here acts as the replica id
+    for REPLICA_ID in $(seq 0 $(($NUM_REPLICAS-1))) # For each replica that we want to create within a shard. Every number here acts as the replica id
     do
         SCREEN_NAME="s"$SHARD_ID"n"$REPLICA_ID
         cp -r chainspacecore chainspacecore-$SHARD_ID-$REPLICA_ID

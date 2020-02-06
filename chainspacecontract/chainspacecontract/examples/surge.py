@@ -6,8 +6,10 @@
 # general
 from hashlib import sha256
 from json    import dumps, loads
+import os
 import time, ast
 import traceback
+import requests
 # chainspace
 from chainspacecontract import ChainspaceContract
 from chainspaceapi import ChainspaceClient
@@ -81,17 +83,17 @@ class SurgeClient:
         self.ebtoken = bid_proof_txn['transaction']['outputs'][1]
         self.cs_client.process_transaction(bid_proof_txn)
         # wait for others to submit their bid proofs
-        time.sleep(2*DELTA)
+        # time.sleep(2*DELTA)
         
-        bid_txn = submit_bid(
-            (bid_proof,),
-            None,
-            (quantity,),
-            pack(self.priv)
-        )
-        bid = bid_txn['transaction']['outputs'][0]
-        self.cs_client.process_transaction(bid_txn)
-        return bid
+        # bid_txn = submit_bid(
+        #     (bid_proof,),
+        #     None,
+        #     (quantity,),
+        #     pack(self.priv)
+        # )
+        # bid = bid_txn['transaction']['outputs'][0]
+        # self.cs_client.process_transaction(bid_txn)
+        # return bid
         
 class SREPClient (SurgeClient):
     
@@ -187,15 +189,21 @@ def validate_sig(sig, pub, msg="proof"):
 # ------------------------------------------------------------------
 @contract.method('init')
 def init():
-
+    r = requests.get('http://10.129.6.52:4999/setup.in')
+    setup_str = r.text
+    setup_str = setup_str.split('\n')
+    NUM_SHARDS = int(setup_str[0])
+    NUM_REPLICAS = int(setup_str[1])
+    NUM_CLIENTS = int(setup_str[2])
+        
+    init_tokens = []
+    for l in range(0,NUM_SHARDS):
+        for i in range(0,NUM_CLIENTS):
+            init_tokens.append(dumps({'type' : 'InitToken', 'location':l}))
+    init_tokens = tuple(init_tokens)
     # return
     return {
-        'outputs': (dumps({'type' : 'InitToken', 'location':0}),
-        dumps({'type' : 'InitToken', 'location':0}),
-        dumps({'type' : 'InitToken', 'location':1}),
-        dumps({'type' : 'InitToken', 'location':1}),
-        dumps({'type' : 'InitToken', 'location':2}),
-        dumps({'type' : 'InitToken', 'location':2})),
+        'outputs': init_tokens,
     }
 
 # ------------------------------------------------------------------
