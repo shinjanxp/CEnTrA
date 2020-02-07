@@ -44,6 +44,8 @@ global_client = ChainspaceClient(host=CS_HOST,port=5000)
 init_transaction = surge.init()
 init_tokens = init_transaction['transaction']['outputs']
 global_client.process_transaction(init_transaction)
+client_divs = surge.eq_div(NUM_CLIENTS, NUM_SHARDS)
+print client_divs
 
 
 # In[3]:
@@ -52,12 +54,33 @@ global_client.process_transaction(init_transaction)
 # Create prosumer clients for locations 
 clients = []
 base_port=5000
+
+
 for s in range(0,NUM_SHARDS):
     clients.append([])
-    for c in range(0,NUM_CLIENTS):
-        clients[s].append(surge.SurgeClient(host=CS_HOST, port=base_port+s, init_token=init_tokens[s*NUM_CLIENTS + c]))
+    for c in range(0,client_divs[s]):
+        
+#         clients[s].append(surge.SurgeClient(host=CS_HOST, port=base_port+s, init_token=init_tokens[idx]))
+        clients[s].append(surge.SurgeClient(host=CS_HOST, port=base_port+s))
 
 print clients
+
+threads = []
+for s in range(0,NUM_SHARDS):
+    threads.append([])
+    for c in range(0,client_divs[s]):
+        client = clients[s][c]
+        idx = sum(client_divs[:s]) + c
+        threads[s].append(threading.Thread(target=client.create_surge_client, args=(init_tokens[idx],)) )
+
+for s in range(0,NUM_SHARDS):
+    for c in range(0,client_divs[s]):
+        threads[s][c].start()
+
+for s in range(0,NUM_SHARDS):
+    for c in range(0,client_divs[s]):
+        threads[s][c].join()
+
 # c00 = surge.SurgeClient(5000, init_token[0]) # location=0
 # Create sreps for locations 0 and 1 which will be clients in location 2
 # rep0 = surge.SREPClient(5002, init_token[4]) # location=2
@@ -74,10 +97,11 @@ print clients
 # In[4]:
 
 
+# Create threads for bidding
 threads = []
 for s in range(0,NUM_SHARDS):
     threads.append([])
-    for c in range(0,NUM_CLIENTS):
+    for c in range(0,client_divs[s]):
         client = clients[s][c]
         bid_value = random.randint(0,100)
         threads[s].append(threading.Thread(target=client.submit_bid, args=(random.choice(['EBBuy', 'EBSell']),bid_value)) )
@@ -88,13 +112,14 @@ for s in range(0,NUM_SHARDS):
 # In[5]:
 
 
+# Run bidding threads
 start = time.time()
 for s in range(0,NUM_SHARDS):
-    for c in range(0,NUM_CLIENTS):
+    for c in range(0,client_divs[s]):
         threads[s][c].start()
 
 for s in range(0,NUM_SHARDS):
-    for c in range(0,NUM_CLIENTS):
+    for c in range(0,client_divs[s]):
         threads[s][c].join()
 
 end = time.time()

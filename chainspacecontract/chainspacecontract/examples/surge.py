@@ -148,6 +148,9 @@ def pb():
 def pe():
     print "***********************  END  *******************************"
 
+def eq_div(N, i):
+    return [] if i <= 0 else [N // i + 1] * (N % i) + [N // i] * (i - N % i)
+
 def validate(object, keys):
     for key in keys:
         if not object.has_key(key):
@@ -197,8 +200,9 @@ def init():
     NUM_CLIENTS = int(setup_str[2])
         
     init_tokens = []
+    client_divs = eq_div(NUM_CLIENTS, NUM_SHARDS)
     for l in range(0,NUM_SHARDS):
-        for i in range(0,NUM_CLIENTS):
+        for i in range(0,client_divs[l]):
             init_tokens.append(dumps({'type' : 'InitToken', 'location':l}))
     init_tokens = tuple(init_tokens)
     # return

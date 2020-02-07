@@ -22,6 +22,9 @@ start-nodes-debug:
 tail-node:
 	tail -f chainspacecore-$(s)-$(r)/screenlog.0
 
+tail-api:
+	tail -f chainspacecore/screenlog.0
+
 start-client-api:
 	cd chainspacecore && ./runclientservice.sh
 
@@ -36,5 +39,10 @@ clean:
 	rm -rf chainspacecore-* && rm -rf chainspacecore/target
 
 redeploy : kill-all start-nodes 
+
+restart-nodes:
+	./contrib/core-tools/restart.linux.sh
+
+reset : kill-all restart-nodes
 
 
