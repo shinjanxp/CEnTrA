@@ -127,6 +127,8 @@ duration = end-start
 logging.info("Execution took "+ str(duration))
 logging.info("TPS: %s"%(NUM_CLIENTS/duration))
 
+with open('stats.csv','a') as f:
+    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_CLIENTS/duration))
 
 # In[6]:
 
