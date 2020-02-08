@@ -58,7 +58,7 @@ class SurgeClient:
         self.cs_client.process_transaction(cast_csc_vote_txn)
         return vote_token
 
-    def cast_srep_vote(self, rep_pub):
+    def cast_srep_vote(self, rep_pub, queue=None):
         cast_srep_vote_txn = cast_srep_vote(
             (self.vote_slip,),
             None,
@@ -69,6 +69,8 @@ class SurgeClient:
         vote_token = cast_srep_vote_txn['transaction']['outputs'][0]
         self.vote_slip = cast_srep_vote_txn['transaction']['outputs'][1]
         self.cs_client.process_transaction(cast_srep_vote_txn)
+        if queue:
+            queue.put(vote_token)
         return vote_token
     
     def submit_bid(self, bid_type, quantity):

@@ -1,6 +1,7 @@
 #!/bin/bash
 SHARD_ID=$1
-printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisClient $SHARD_ID\nport 500$SHARD_ID" > ChainSpaceClientConfig/config.txt
+PORT=$((5000 + $SHARD_ID))
+printf "shardConfigFile ChainSpaceConfig/shardConfig.txt\nthisClient $SHARD_ID\nport $PORT" > ChainSpaceClientConfig/config.txt
 
 
 BFT_SMART_LIB=lib/bft-smart-1.2.1-UCL.jar
