@@ -99,8 +99,8 @@ class SurgeClient:
         
 class SREPClient (SurgeClient):
     
-    def create_srep_client(self, srep_port, vote_tokens):
-        self.srep_cs_client = ChainspaceClient(port=srep_port)
+    def create_srep_client(self, host='127.0.0.1', srep_port=5000, vote_tokens=None):
+        self.srep_cs_client = ChainspaceClient(host=host, port=srep_port)
         create_srep_client_txn = create_srep_client(
             vote_tokens,
             None,

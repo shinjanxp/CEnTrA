@@ -121,7 +121,7 @@ for s in range(0,NUM_SHARDS):
 #     for i in range(0,2):
         votes.append(que.get())
     client = sreps[s]
-    sreps[s].create_srep_client(base_port+s, tuple(votes))
+    sreps[s].create_srep_client(host=CS_HOST, srep_port=base_port+s, vote_tokens=tuple(votes))
 
 
 # In[6]:
@@ -158,4 +158,7 @@ end = time.time()
 duration = end-start
 logging.info("Execution took "+ str(duration))
 logging.info("TPS: %s"%(NUM_SHARDS/duration))
+
+with open('stats.csv','a') as f:
+    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_SHARDS/duration))
 
