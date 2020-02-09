@@ -2,6 +2,8 @@ package uk.ac.ucl.cs.sec.chainspace;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,7 +25,7 @@ class PythonChecker {
     private static int latestPort = initialiseStartingPort();
 
     private static int initialiseStartingPort() {
-        return new Integer(System.getProperty("checker.start.port", "13000"));
+        return new Integer(System.getProperty("checker.start.port", "30000"));
     }
 
     private static String initialisePythonExectutable() {
@@ -34,11 +36,50 @@ class PythonChecker {
 
     private final String pythonExecutable = initialisePythonExectutable();
 
+    public static boolean available(int port) {
+        if (port < 30000 || port > 65535) {
+            throw new IllegalArgumentException("Invalid start port: " + port);
+        }
+
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public int getNextAvailablePort() {
+        for(int p=30000; p<65535; p++){
+            if(available(p)){
+                return p;
+            }
+        }
+        return 30000;
+    }
 
     /**
-     * Provides a process wrapper around a python script
-     * This python script should launch a checker api
-     * There is an implementation of this in the chainspacecontract python library
+     * Provides a process wrapper around a python script This python script should
+     * launch a checker api There is an implementation of this in the
+     * chainspacecontract python library
      */
     PythonChecker(String contractID) throws StartCheckerException {
 
@@ -46,33 +87,27 @@ class PythonChecker {
         this.contractID = contractID;
 
         if (latestPort >= 65535) {
-            latestPort = 13000;
+            latestPort = 30000;
         }
-        latestPort += (int)(Math.random() * 50 + 1);;
+        latestPort += (int) (Math.random() * 20000 + 1);
         port = latestPort;
 
         this.startChecker();
 
     }
 
-
     void startChecker() throws StartCheckerException {
         System.out.println("\nStarting Checker @ " + getURL("") + "\n");
         System.out.println("Working dir: " + new File(".").getAbsolutePath());
 
-        ProcessBuilder pb = new ProcessBuilder(Arrays.asList(
-                pythonExecutable,
-                this.pythonScriptPath,
-                "checker",
-                "--port",
-                String.valueOf(this.port)
-        ));
-
+        ProcessBuilder pb = new ProcessBuilder(
+                Arrays.asList(pythonExecutable, this.pythonScriptPath, "checker", "--port", String.valueOf(this.port)));
 
         File checkerLogFile = redirectCheckerOutputToFile(pb, this.port);
 
         if (Main.VERBOSE) {
-            System.out.println("startChecker: " + pythonExecutable + " " + this.pythonScriptPath + " checker --port " + this.port);
+            System.out.println(
+                    "startChecker: " + pythonExecutable + " " + this.pythonScriptPath + " checker --port " + this.port);
         }
 
         try {
@@ -80,20 +115,20 @@ class PythonChecker {
 
             logPid(checkerProcess, this.port);
 
-
             Thread.sleep(2000);
 
             System.out.println("checkerProcess isAlive: " + checkerProcess.isAlive());
 
             if (!checkerProcess.isAlive()) {
-                throw new StartCheckerException("Checker failed to start! (see [" + checkerLogFile.getAbsolutePath() + "] for log output) " + "Exit value " + checkerProcess.exitValue());
+                throw new StartCheckerException("Checker failed to start! (see [" + checkerLogFile.getAbsolutePath()
+                        + "] for log output) " + "Exit value " + checkerProcess.exitValue());
             } else {
                 this.checkerProcess = checkerProcess;
                 System.out.println("Checker started ok.");
             }
 
         } catch (IOException | InterruptedException e) {
-            throw new StartCheckerException("Couldn't start checker" , e);
+            throw new StartCheckerException("Couldn't start checker", e);
         }
 
     }
@@ -118,13 +153,11 @@ class PythonChecker {
                 }
             }
 
-
         } catch (Throwable t) {
             System.out.println("Could not write pid file out");
             t.printStackTrace();
         }
     }
-
 
     /**
      * Currently only works on unix
@@ -148,7 +181,7 @@ class PythonChecker {
     }
 
     private static File redirectCheckerOutputToFile(ProcessBuilder pb, int port) {
-        File checkerLog =  new File("./checker." + port + ".log.0");
+        File checkerLog = new File("./checker." + port + ".log.0");
 
         try {
             if (!checkerLog.exists()) {
@@ -163,8 +196,6 @@ class PythonChecker {
         }
         return checkerLog;
     }
-
-
 
     /**
      *
@@ -189,7 +220,6 @@ class PythonChecker {
 
     }
 
-
     /**
      *
      */
@@ -198,7 +228,6 @@ class PythonChecker {
         this.checkerProcess.destroy();
 
     }
-
 
     /**
      *
@@ -209,18 +238,14 @@ class PythonChecker {
             System.out.println("\nChecker URL:");
             System.out.println("\t" + getURL(transactionForChecker.getMethodID()));
         }
-        return Utils.makePostRequest(
-                this.getURL(transactionForChecker.getMethodID()),
-                transactionForChecker.toJson(),
+        return Utils.makePostRequest(this.getURL(transactionForChecker.getMethodID()), transactionForChecker.toJson(),
                 true);
     }
-
 
     /**
      *
      */
-    static PythonChecker getFromCache(String contractID)
-            throws StartCheckerException {
+    static PythonChecker getFromCache(String contractID) throws StartCheckerException {
 
         if (Main.VERBOSE) {
             System.out.println("\nChecker instance:");
@@ -228,7 +253,8 @@ class PythonChecker {
 
         PythonChecker cachedChecker = findInCache(contractID);
 
-        if (cachedChecker != null) return cachedChecker;
+        if (cachedChecker != null)
+            return cachedChecker;
 
         // otherwise, update cache
         PythonChecker newChecker = new PythonChecker(contractID);
