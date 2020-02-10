@@ -53,9 +53,9 @@ public class MapClient implements Map<String, String> {
     private HashMap<String, TOMMessage> asynchReplies = null;
 
     // FIXME: Choose suitable timeout values
-    private int submitTTimeout = 60000; // How long should the client wait for responses from all shards
+    private int submitTTimeout = 10000; // How long should the client wait for responses from all shards
     // after calling SUBMIT_T
-    private int createObjectTimeout = 0; // How long should the replica-client wait for responses from all shards
+    private int createObjectTimeout = 10000; // How long should the replica-client wait for responses from all shards
     // after calling CREATE_OBJECT
 
 
@@ -100,13 +100,13 @@ public class MapClient implements Map<String, String> {
 
         
 
-        // BigInteger iObject = new BigInteger(objectId.split("_")[1], 16);
+        BigInteger iObject = new BigInteger(objectId.split("_")[1], 16);
 
-        // return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
+        return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
 
         
         // For now always put all the objects into shard 0 because we need them to stay together
-        return Integer.parseInt(objectId.split("_")[0]);
+        // return Integer.parseInt(objectId.split("_")[0]);
     }
     static int objectToShardAlgorithm(String objectId) {
 

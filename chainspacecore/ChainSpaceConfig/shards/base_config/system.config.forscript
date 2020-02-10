@@ -32,7 +32,7 @@ system.communication.defaultkeys = true
 ############################################
 
 #Timeout to asking for a client request
-system.totalordermulticast.timeout = 10000
+system.totalordermulticast.timeout = 60000
 
 
 #Maximum batch size (in number of messages)
@@ -72,10 +72,10 @@ system.shutdownhook = true
 system.totalordermulticast.state_transfer = true
 
 #Maximum ahead-of-time message not discarded
-system.totalordermulticast.highMark = 10000
+system.totalordermulticast.highMark = 60000
 
 #Maximum ahead-of-time message not discarded when the replica is still on EID 0 (after which the state transfer is triggered)
-system.totalordermulticast.revival_highMark = 10
+system.totalordermulticast.revival_highMark = 60
 
 #Number of ahead-of-time messages necessary to trigger the state transfer after a request timeout occurs
 system.totalordermulticast.timeout_highMark = 200

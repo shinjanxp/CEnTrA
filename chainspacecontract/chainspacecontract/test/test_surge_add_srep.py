@@ -99,7 +99,6 @@ for s in range(0,NUM_SHARDS):
     queues.append(que)
 
 # Run bidding threads
-start = time.time()
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         threads[s][c].start()
@@ -116,8 +115,9 @@ for s in range(0,NUM_SHARDS):
     while not que.empty():
         votes.append(que.get())
     client = sreps[s]
-    t = threading.Thread(target=client.create_srep_client, args=(base_port+s, tuple(votes)) )
+    t = threading.Thread(target=client.create_srep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
     threads.append(t)
+start = time.time()
     
 for t in threads:
     t.start()
@@ -132,5 +132,5 @@ logging.info("TPS: %s"%(NUM_CLIENTS/duration))
 
 
 with open('stats.csv','a') as f:
-    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_CLIENTS/duration))
+    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, duration))
 

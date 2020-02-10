@@ -100,7 +100,7 @@ class SurgeClient:
 class SREPClient (SurgeClient):
     
     def create_srep_client(self, host='127.0.0.1', srep_port=5000, vote_tokens=None):
-        self.srep_cs_client = ChainspaceClient(host=host, port=srep_port)
+        self.srep_cs_client = ChainspaceClient(host=host, port=srep_port, max_wait=srep_port-5000)
         create_srep_client_txn = create_srep_client(
             vote_tokens,
             None,
@@ -226,17 +226,20 @@ def create_surge_client(inputs, reference_inputs, parameters, priv):
     new_surge_client = {
         'type'           : 'SurgeClient', 
         'pub'            : pub, 
-        'location'       : loads(inputs[0])['location']
+        'location'       : loads(inputs[0])['location'],
+        'timestamp' : time.time()
     }
     vote_slip = {
         'type':'VoteSlipToken',
         'pub':pub,
-        'location':loads(inputs[0])['location']
+        'location':loads(inputs[0])['location'],
+        'timestamp' : time.time()
     }
     ebtoken = {
         'type':'EBToken',
         'pub':pub,
-        'location':loads(inputs[0])['location']
+        'location':loads(inputs[0])['location'],
+        'timestamp' : time.time()
     }
     # return
     return {
@@ -263,9 +266,9 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
         if len(inputs) < 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 3 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(surge_client, ['type','pub','location'])
-        validate(vote_slip, ['type','pub','location'])
-        validate(ebtoken, ['type','pub','location'])
+        validate(surge_client, ['type','pub','location', 'timestamp'])
+        validate(vote_slip, ['type','pub','location', 'timestamp'])
+        validate(ebtoken, ['type','pub','location', 'timestamp'])
         
         # type checks
         # Since input can be InitToken or CSCVoteToken we cannot check type here
@@ -328,7 +331,8 @@ def cast_csc_vote(inputs, reference_inputs, parameters, surge_client_priv, grant
         'type'          : 'CSCVoteToken', 
         'granted_by'    : granted_by_pub,
         'granted_to'    : granted_to_pub,
-        'location'      : loads(inputs[0])['location']
+        'location'      : loads(inputs[0])['location'],
+        'timestamp' :   time.time()
     }
 
     return {
@@ -354,8 +358,8 @@ def cast_csc_vote_checker(inputs, reference_inputs, parameters, outputs, returns
         if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=1 or len(outputs) != 2 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(vote_token, ['type','granted_by', 'granted_to','location'])
-        validate(new_vote_slip, ['type','pub','location'])
+        validate(vote_token, ['type','granted_by', 'granted_to','location', 'timestamp'])
+        validate(new_vote_slip, ['type','pub','location', 'timestamp'])
         # type checks
         check_type(vote_slip, 'VoteSlipToken')
         check_type(vote_token, 'CSCVoteToken')
@@ -393,7 +397,8 @@ def cast_srep_vote(inputs, reference_inputs, parameters, priv, granted_to_pub):
         'type'          : 'SREPVoteToken', 
         'granted_by'    : granted_by_pub,
         'granted_to'    : granted_to_pub,
-        'location'      : loads(inputs[0])['location']
+        'location'      : loads(inputs[0])['location'],
+        'timestamp'     : time.time()
     }
 
     return {
@@ -419,8 +424,8 @@ def cast_srep_vote_checker(inputs, reference_inputs, parameters, outputs, return
         if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=1 or len(outputs) != 2 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(vote_token, ['type','granted_by', 'granted_to','location'])
-        validate(new_vote_slip, ['type','pub','location'])
+        validate(vote_token, ['type','granted_by', 'granted_to','location', 'timestamp'])
+        validate(new_vote_slip, ['type','pub','location', 'timestamp'])
         # type checks
         check_type(vote_slip, 'VoteSlipToken')
         check_type(vote_token, 'SREPVoteToken')
@@ -453,12 +458,14 @@ def create_srep_client(inputs, reference_inputs, parameters, priv):
     srep_client = {
         'type'           : 'SREPClient', 
         'pub'            : pub, 
-        'location'       : loads(inputs[0])['location']
+        'location'       : loads(inputs[0])['location'],
+        'timestamp'      : time.time()
     }
     vote_slip = {
         'type':'VoteSlipToken',
         'pub':pub,
-        'location':loads(inputs[0])['location']
+        'location':loads(inputs[0])['location'],
+        'timestamp'      : time.time()
     }
     # return
     return {
@@ -485,9 +492,9 @@ def create_srep_client_checker(inputs, reference_inputs, parameters, outputs, re
         if len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 2 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(srep_client, ['type','pub','location'])
-        validate(vote_slip, ['type','pub','location'])
-        validate(srep_vote_1, ['type','granted_by', 'granted_to','location'])
+        validate(srep_client, ['type','pub','location', 'timestamp'])
+        validate(vote_slip, ['type','pub','location', 'timestamp'])
+        validate(srep_vote_1, ['type','granted_by', 'granted_to','location', 'timestamp'])
         
         # type checks
         check_type(srep_client, 'SREPClient')
@@ -541,7 +548,8 @@ def submit_bid_proof(inputs, reference_inputs, parameters, priv, quantity):
         'bid_type' : parameters[0],
         'quantity_sig' : generate_sig(priv, '{}|{}'.format(quantity, ebtoken['pub'])),
         'pub':ebtoken['pub'],
-        'location' : ebtoken['location']
+        'location' : ebtoken['location'],
+        'timestamp' : time.time()
     }
     return {
         'outputs' : (dumps(bid_proof), dumps(ebtoken)),
@@ -563,9 +571,9 @@ def submit_bid_proof_checker(inputs, reference_inputs, parameters, outputs, retu
         if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 2 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(old_ebtoken, ['type','pub','location'])
-        validate(bid_proof, ['type', 'bid_type', 'quantity_sig', 'pub', 'location'])
-        validate(new_ebtoken, ['type','pub','location'])
+        validate(old_ebtoken, ['type','pub','location', 'timestamp'])
+        validate(bid_proof, ['type', 'bid_type', 'quantity_sig', 'pub', 'location', 'timestamp'])
+        validate(new_ebtoken, ['type','pub','location', 'timestamp'])
         # type checks
         check_type(old_ebtoken, 'EBToken')
         check_type(new_ebtoken, 'EBToken')
@@ -602,7 +610,8 @@ def submit_bid(inputs, reference_inputs, parameters, priv):
         'quantity' : parameters[0],
         'quantity_sig':bid_proof['quantity_sig'],
         'pub':bid_proof['pub'],
-        'location' : bid_proof['location']
+        'location' : bid_proof['location'], 
+        'timestamp' : time.time()
     }
     return {
         'outputs' : (dumps(bid),),
@@ -623,8 +632,8 @@ def submit_bid_checker(inputs, reference_inputs, parameters, outputs, returns, d
         if len(inputs) != 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 1 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(bid_proof, ['type', 'bid_type', 'quantity_sig','pub','location'])
-        validate(bid, ['type', 'quantity', 'quantity_sig', 'pub', 'location'])
+        validate(bid_proof, ['type', 'bid_type', 'quantity_sig','pub','location', 'timestamp'])
+        validate(bid, ['type', 'quantity', 'quantity_sig', 'pub', 'location', 'timestamp'])
         # type checks
         check_type(bid_proof, 'BidProof')
         if not (bid['type'] == 'EBBuy' or bid['type'] == 'EBSell'):
@@ -673,7 +682,8 @@ def accept_bids(inputs, reference_inputs, parameters, priv):
         'total_buy' : total_buy,
         'total_sell' : total_sell,
         'pub': parameters[0],
-        'location' : loads(inputs[0])['location']
+        'location' : loads(inputs[0])['location'],
+        'timestamp' : time.time()
     }
     return {
         'outputs' : (dumps(bid_accept),),
@@ -693,7 +703,7 @@ def accept_bids_checker(inputs, reference_inputs, parameters, outputs, returns, 
         if len(inputs) < 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 1 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(bid_accept, ['type', 'total_buy', 'total_sell','pub','location'])
+        validate(bid_accept, ['type', 'total_buy', 'total_sell','pub','location', 'timestamp'])
         # type checks
         check_type(bid_accept, 'BidAccept')
         # equality checks

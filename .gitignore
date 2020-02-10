@@ -22,3 +22,4 @@ chainspaceapi/build
 chainspaceapi/dist
 .vscode
 .ipynb_checkpoints
+surge_experiments/*
