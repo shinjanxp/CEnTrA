@@ -51,8 +51,8 @@ You need to have Python 2.7 (as well as pip) installed to run Chainspace.
 It's preferable to install python virtualenv to manage local python environments and their dependencies.
 
 ```
-virtualenv .chainspace.env
-source .chainspace.env/bin/activate
+virtualenv -p python2 .cs.env
+source .cs.env/bin/activate
 ```
 
 Install Python modules:
@@ -159,7 +159,7 @@ Let's submit and verify a transaction using the "increment" method in the "addit
 Begin by entering the virtual environment:
 
 ```
-source .chainspace.env/bin/activate
+source .cs.env/bin/activate
 ```
 
 If you ever need to debug the chainspace contract code in your python REPL, you can force
