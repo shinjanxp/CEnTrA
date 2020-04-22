@@ -1,12 +1,10 @@
 #!/bin/bash
-# Set these values
-exec 6< surge-experiments/setup.in
-read NUM_SHARDS <&6
-read NUM_REPLICAS <&6
-read NUM_CLIENTS <&6
-export NUM_SHARDS
-export NUM_REPLICAS
-export NUM_CLIENTS
+# Use environment variables to set these values, else these defaults will be used.
+
+NUM_SHARDS=${NUM_SHARDS:-2}
+NUM_REPLICAS=${NUM_REPLICAS:-4}
+NUM_CLIENTS=${NUM_CLIENTS:-200}
+
 cd surge-experiments
 screen -dmSL surge-experiments-setup python -m SimpleHTTPServer 4999
 cd ..

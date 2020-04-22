@@ -1,8 +1,0 @@
-0 ChainSpaceConfig/shards/config0
-1 ChainSpaceConfig/shards/config1
-2 ChainSpaceConfig/shards/config2
-3 ChainSpaceConfig/shards/config3
-4 ChainSpaceConfig/shards/config4
-5 ChainSpaceConfig/shards/config5
-6 ChainSpaceConfig/shards/config6
-7 ChainSpaceConfig/shards/config7

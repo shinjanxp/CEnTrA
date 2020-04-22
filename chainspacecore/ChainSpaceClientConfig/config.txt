@@ -1,3 +1,0 @@
-shardConfigFile ChainSpaceConfig/shardConfig.txt
-thisClient 7
-port 5007

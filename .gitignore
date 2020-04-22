@@ -23,3 +23,6 @@ chainspaceapi/dist
 .vscode
 .ipynb_checkpoints
 *.log
+# Runtime configs
+chainspacecore/ChainSpaceConfig/shardConfig.txt
+chainspacecore/ChainSpaceClientConfig/config.txt
