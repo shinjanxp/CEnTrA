@@ -5,12 +5,9 @@ NUM_SHARDS=${NUM_SHARDS:-2}
 NUM_REPLICAS=${NUM_REPLICAS:-4}
 NUM_CLIENTS=${NUM_CLIENTS:-200}
 
-cd surge-experiments
-screen -dmSL surge-experiments-setup python -m SimpleHTTPServer 4999
-cd ..
 
 rm -rf chainspacecore-*
-printf "$(date) Deployed shards: $NUM_SHARDS , replicas: $NUM_REPLICAS\n" >> surge-experiments/deploy-log.txt
+printf "$(date) Deployed shards: $NUM_SHARDS , replicas: $NUM_REPLICAS\n" >> stats/deploy-log.txt
 # NUM_REPLICAS=$(($NUM_REPLICAS-1))
 # NUM_SHARDS=$(($NUM_SHARDS-1))
 
