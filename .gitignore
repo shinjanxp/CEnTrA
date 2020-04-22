@@ -26,3 +26,7 @@ chainspaceapi/dist
 # Runtime configs
 chainspacecore/ChainSpaceConfig/shardConfig.txt
 chainspacecore/ChainSpaceClientConfig/config.txt
+# Stats
+stats/*
+!stats/.gitkeep
+!stats/plot.ipynb
