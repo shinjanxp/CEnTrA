@@ -194,12 +194,11 @@ def validate_sig(sig, pub, msg="proof"):
 # ------------------------------------------------------------------
 @contract.method('init')
 def init():
-    r = requests.get('http://10.129.6.52:4999/setup.in')
-    setup_str = r.text
-    setup_str = setup_str.split('\n')
-    NUM_SHARDS = int(setup_str[0])
-    NUM_REPLICAS = int(setup_str[1])
-    NUM_CLIENTS = int(setup_str[2])
+    # Get setup variables from env
+
+    NUM_SHARDS = int(os.getenv('NUM_SHARDS', 2))
+    NUM_REPLICAS = int(os.getenv('NUM_REPLICAS', 4))
+    NUM_CLIENTS = int(os.getenv('NUM_CLIENTS', 200))
         
     init_tokens = []
     client_divs = eq_div(NUM_CLIENTS, NUM_SHARDS)

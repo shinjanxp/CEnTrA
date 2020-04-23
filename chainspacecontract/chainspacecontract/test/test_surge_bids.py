@@ -25,15 +25,13 @@ logging.basicConfig(level=logging.INFO, filename="execution.log", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
 logging.info("Starting test_surge_bids")
 
-# Setup variables
-r = requests.get('http://10.129.6.52:4999/setup.in')
-setup_str = r.text
-setup_str = setup_str.split('\n')
-NUM_SHARDS = int(setup_str[0])
-NUM_REPLICAS = int(setup_str[1])
-NUM_CLIENTS = int(setup_str[2])
+# Get setup variables from env
+
+NUM_SHARDS = int(os.getenv('NUM_SHARDS', 2))
+NUM_REPLICAS = int(os.getenv('NUM_REPLICAS', 4))
+NUM_CLIENTS = int(os.getenv('NUM_CLIENTS', 200))
 logging.info("NUM_SHARDS: %s, NUM_REPLICAS: %s, NUM_CLIENTS: %s "%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS))
-CS_HOST='10.129.6.52'
+CS_HOST=os.getenv('PEERS_HOST', 'localhost')
 G = setup()[0]
 
 

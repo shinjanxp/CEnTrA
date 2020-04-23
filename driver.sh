@@ -34,7 +34,7 @@ do
         while [ $NUM_CLIENTS -le $MAX_CLIENTS ]
         do
             echo "
-            
+
             ***********************************************
             NUM_SHARDS: $NUM_SHARDS, NUM_REPLICAS: $NUM_REPLICAS, NUM_CLIENTS: $NUM_CLIENTS"
             # Set these values in setup.in so that it can be uploaded to CLIENTS_HOST
@@ -51,7 +51,7 @@ do
                     cd ${CLIENTS_SURGE_PATH}
                     source .cs.env/bin/activate
                     cd chainspacecontract/chainspacecontract/test
-                    python test_surge_bids.py
+                    NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} PEERS_HOST=${PEERS_HOST} python test_surge_bids.py
                 "
             NUM_CLIENTS=$(( $NUM_CLIENTS+50 ))
         done
