@@ -2,12 +2,9 @@
 venv
 out
 *.env
-checker.*.log.*
 checker.pids
 chainspacecore-*
 simplelog_client
-contrib/core-tools/screenlog.0
-contrib/screenlog.0
 workspace.xml
 tasks.xml
 .idea
@@ -22,7 +19,10 @@ chainspaceapi/build
 chainspaceapi/dist
 .vscode
 .ipynb_checkpoints
+# Logs
+checker.*.log.*
 *.log
+**/screenlog.0
 # Runtime configs
 chainspacecore/ChainSpaceConfig/shardConfig.txt
 chainspacecore/ChainSpaceClientConfig/config.txt
