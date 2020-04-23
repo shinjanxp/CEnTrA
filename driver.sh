@@ -9,13 +9,6 @@ NUM_REPS=${NUM_REPS:-1}
 
 NUM_NODES=32
 
-# Setup an http server on clients server to host the setup file. 
-# This is required since the python contracts cannot access environment variables
-ssh ${CLIENTS_USER}@${CLIENTS_HOST} "
-    cd ${CLIENTS_SURGE_PATH}/stats
-    screen -dmSL stats python -m SimpleHTTPServer 4999
-"
-
 for REPS in $(seq 1 $NUM_REPS) 
 do
     NUM_SHARDS=1
@@ -38,10 +31,7 @@ do
             ***********************************************
             NUM_SHARDS: $NUM_SHARDS, NUM_REPLICAS: $NUM_REPLICAS, NUM_CLIENTS: $NUM_CLIENTS"
             # Set these values in setup.in so that it can be uploaded to CLIENTS_HOST
-            cd stats
-            printf "$NUM_SHARDS\n$NUM_REPLICAS\n$NUM_CLIENTS\n" > setup.in
-            scp setup.in ${CLIENTS_USER}@${CLIENTS_HOST}:${CLIENTS_SURGE_PATH}/setup.in
-            cd ..
+           
             ssh ${PEERS_USER}@${PEERS_HOST} "
                     cd ${PEERS_SURGE_PATH}
                     NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} make reset
