@@ -5,8 +5,6 @@ backports-abc==0.5
 backports.shutil-get-terminal-size==1.0.0
 certifi==2020.4.5.1
 cffi==1.14.0
--e git+git@github.com:shinjanxp/surge.git@18dc1b368766455f9d4b7d6b4ba951f3d616f1b4#egg=chainspaceapi&subdirectory=chainspaceapi
--e git+git@github.com:shinjanxp/surge.git@18dc1b368766455f9d4b7d6b4ba951f3d616f1b4#egg=chainspacecontract&subdirectory=chainspacecontract
 chardet==3.0.4
 click==7.1.1
 configparser==4.0.2
