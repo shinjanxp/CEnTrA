@@ -20,7 +20,7 @@ do
         # NUM_REPLICAS=$(($NUM_NODES/$NUM_SHARDS))
         # Deploy once per shard reconfiguration. Then restart
         ssh ${PEERS_USER}@${PEERS_HOST} "
-                cd ${PEERS_SURGE_PATH}
+                cd ${PEERS_CODE_PATH}
                 NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} make redeploy
             "
         
@@ -33,15 +33,15 @@ do
             # Set these values in setup.in so that it can be uploaded to CLIENTS_HOST
            
             ssh ${PEERS_USER}@${PEERS_HOST} "
-                    cd ${PEERS_SURGE_PATH}
+                    cd ${PEERS_CODE_PATH}
                     NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} make reset
                 "
             sleep 10
             ssh ${CLIENTS_USER}@${CLIENTS_HOST} "
-                    cd ${CLIENTS_SURGE_PATH}
+                    cd ${CLIENTS_CODE_PATH}
                     source .cs.env/bin/activate
-                    cd chainspacecontract/chainspacecontract/test
-                    NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} PEERS_HOST=${PEERS_HOST} python test_surge_bids.py
+                    cd chainspacecontract/chainspacecontract/measurements
+                    NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} PEERS_HOST=${PEERS_HOST} python ${CLIENTS_EMULATOR_SCRIPT}
                 "
             NUM_CLIENTS=$(( $NUM_CLIENTS+50 ))
         done
