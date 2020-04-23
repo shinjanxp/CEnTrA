@@ -21,7 +21,7 @@ from chainspacecontract.examples.utils import setup, key_gen, pack
 from chainspaceapi import ChainspaceClient
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, filename="execution.log", filemode="a+",
+logging.basicConfig(level=logging.INFO, filename="../../../stats/client-execution.log", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
 logging.info("Starting test_surge_bids")
 
@@ -125,7 +125,7 @@ duration = end-start
 logging.info("Execution took "+ str(duration))
 logging.info("TPS: %s"%(NUM_CLIENTS/duration))
 
-with open('stats.csv','a') as f:
+with open('../../../stats/client-stats.csv','a') as f:
     f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_CLIENTS/duration))
 
 # In[6]:
