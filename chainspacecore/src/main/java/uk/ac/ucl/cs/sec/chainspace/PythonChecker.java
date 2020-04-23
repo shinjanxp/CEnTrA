@@ -29,7 +29,12 @@ class PythonChecker {
     }
 
     private static String initialisePythonExectutable() {
-        return System.getProperty("checker.python.bin", "../.cs.env/bin/python");
+        if(new File("../.cs.env/bin/python").exists()){
+            return System.getProperty("checker.python.bin", "../.cs.env/bin/python");
+        }
+        else{
+            return System.getProperty("checker.python.bin", "../../.cs.env/bin/python");
+        }
     }
 
     private final int port;

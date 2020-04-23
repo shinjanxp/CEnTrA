@@ -34,8 +34,7 @@ class SQLiteConnector extends DatabaseConnector {
     static Connection openConnection(String databaseName) throws ClassNotFoundException, SQLException {
 
         Class.forName("org.sqlite.JDBC");
-        // DriverManager.getConnection("jdbc:sqlite:" + databaseName + ".sqlite");
-        return DriverManager.getConnection("jdbc:sqlite:file:" + databaseName + "?mode=memory&cache=shared");        
+        return DriverManager.getConnection("jdbc:sqlite:" + databaseName + ".sqlite");
 
     }
 
