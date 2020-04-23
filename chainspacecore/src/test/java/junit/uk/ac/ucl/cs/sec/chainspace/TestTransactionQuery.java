@@ -20,14 +20,15 @@ public class TestTransactionQuery {
     private Connection connection;
     private TransactionQuery transactionQuery;
 
-    @BeforeClass
-    public static void initialise_test_db() throws Exception {
-        TestDatabase.initialise();
-    }
+    // @BeforeClass
+    // public static void initialise_test_db() throws Exception {
+    //     TestDatabase.initialise();
+    // }
 
     @Before
     public void open_connection() throws Exception {
         this.connection = openConnection("testdatabase");
+        TestDatabase.initialise();
         this.transactionQuery = new TransactionQuery(connection);
     }
 

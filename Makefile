@@ -36,7 +36,7 @@ kill-all:
 	ps aux | grep -v grep | grep chainspace | awk '{print $$2}' | xargs -r kill
 
 clean:
-	rm -rf chainspacecore-* && rm -rf chainspacecore/target
+	rm -rf chainspacecore-* && rm chainspacecore/screenlog.0
 
 redeploy : kill-all start-nodes 
 

@@ -53,9 +53,9 @@ public class MapClient implements Map<String, String> {
     private HashMap<String, TOMMessage> asynchReplies = null;
 
     // FIXME: Choose suitable timeout values
-    private int submitTTimeout = 10000; // How long should the client wait for responses from all shards
+    private int submitTTimeout = 60000; // How long should the client wait for responses from all shards
     // after calling SUBMIT_T
-    private int createObjectTimeout = 10000; // How long should the replica-client wait for responses from all shards
+    private int createObjectTimeout = 60000; // How long should the replica-client wait for responses from all shards
     // after calling CREATE_OBJECT
 
 
