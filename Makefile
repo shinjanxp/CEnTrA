@@ -45,4 +45,5 @@ restart-nodes:
 
 reset : kill-all restart-nodes
 
-
+run-experiments: 
+	. ./.env && ./driver.sh
