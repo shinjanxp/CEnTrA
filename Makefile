@@ -51,5 +51,5 @@ run-experiments:
 mount-tmpfs:
 	sudo mount -t tmpfs tmpfs ./tmpfs
 
-umount-tmpfs:
+unmount-tmpfs:
 	sudo umount -t tmpfs ./tmpfs
