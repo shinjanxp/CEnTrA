@@ -26,6 +26,7 @@ do
         # Deploy once per shard-replica reconfiguration. Then restart
         ssh ${PEERS_USER}@${PEERS_HOST} "
             cd ${PEERS_CODE_PATH}
+            make clean
             NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} make redeploy
         "
         # Varying the number of clients

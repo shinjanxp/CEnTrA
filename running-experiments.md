@@ -16,7 +16,7 @@ ssh-copy-id ${PEERS_USER}@${PEERS_HOST}
 ```
 make build-jar
 ```
-* To drastically improve execution speed and prevent errors arising due to disk write latency (when running multiple peers on the same host, each peer will try to update its database.sqlite concurrently, leading to disk contention and slowdown), we make use of a tmpfs file system. This allows us to access memory via a file system, so that all file access never actually reaches the disk but is kept completely in memory. This gives us write speeds of upto 1.5 Gbps. To enable tmpfs we need to mount a tmpfs file system. Luckily we have a make script that can do the job. 
+* To drastically improve execution speed and prevent errors arising due to disk write latency (when running multiple peers on the same host, each peer will try to update its database.sqlite concurrently, leading to disk contention and slowdown), we make use of a tmpfs file system. T his allows us to access memory via a file system, so that all file access never actually reaches the disk but is kept completely in memory. This gives us write speeds of upto 1.5 Gbps. To enable tmpfs we need to mount a tmpfs file system. Luckily we have a make script that can do the job. 
 ```
 make mount-tmpfs
 # Provide sudo password when asked for
