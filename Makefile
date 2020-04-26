@@ -38,6 +38,9 @@ kill-all:
 clean:
 	rm -rf tmpfs/chainspacecore-* && rm chainspacecore/*log.0
 
+clear-logs:
+	rm tmpfs/chainspacecore-*/*log.0 && rm chainspacecore/*log.0
+
 redeploy : kill-all start-nodes 
 
 restart-nodes:

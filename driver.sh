@@ -42,6 +42,7 @@ do
             
                 ssh ${PEERS_USER}@${PEERS_HOST} "
                         cd ${PEERS_CODE_PATH}
+                        make clear-logs
                         NUM_SHARDS=${NUM_SHARDS} NUM_REPLICAS=${NUM_REPLICAS} NUM_CLIENTS=${NUM_CLIENTS} make reset
                     "
                 sleep 10
