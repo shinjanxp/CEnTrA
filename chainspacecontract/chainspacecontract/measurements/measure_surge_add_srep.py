@@ -20,20 +20,21 @@ from chainspacecontract.examples import surge
 from chainspacecontract.examples.utils import setup, key_gen, pack
 from chainspaceapi import ChainspaceClient
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, filename="execution.log", filemode="a+",
-                        format="%(asctime)-15s %(levelname)-8s %(message)s")
-logging.info("Starting test_surge_bids")
+# Get setup variables from env
 
-# Setup variables
-r = requests.get('http://10.129.6.52:4999/setup.in')
-setup_str = r.text
-setup_str = setup_str.split('\n')
-NUM_SHARDS = int(setup_str[0])
-NUM_REPLICAS = int(setup_str[1])
-NUM_CLIENTS = int(setup_str[2])
+RUN_ID = os.getenv('RUN_ID', str(random.randint(1, 999)))
+NUM_SHARDS = int(os.getenv('NUM_SHARDS', 2))
+NUM_REPLICAS = int(os.getenv('NUM_REPLICAS', 4))
+NUM_CLIENTS = int(os.getenv('NUM_CLIENTS', 200))
+CS_HOST=os.getenv('PEERS_HOST', 'localhost')
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, filename="../../../stats/"+RUN_ID+"_execution.log", filemode="a+",
+                        format="%(asctime)-15s %(levelname)-8s %(message)s")
+logging.info("Starting measure_surge_add_srep")
+
+
 logging.info("NUM_SHARDS: %s, NUM_REPLICAS: %s, NUM_CLIENTS: %s "%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS))
-CS_HOST='10.129.6.52'
 G = setup()[0]
 
 
@@ -71,7 +72,7 @@ for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         client = clients[s][c]
         idx = sum(client_divs[:s]) + c
-        threads[s].append(threading.Thread(target=client.create_surge_client, args=(init_tokens[idx],)) )
+        threads[s].append(threading.Thread(target=clients[s][c].create_surge_client, args=(init_tokens[idx],)) )
 
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
@@ -82,7 +83,7 @@ for s in range(0,NUM_SHARDS):
         threads[s][c].join()
 
 
-# In[5]:
+# In[4]:
 
 
 # Create threads for casting srep vote
@@ -107,17 +108,38 @@ for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         threads[s][c].join()
 
-# Submit the votes
+
+
+# In[5]:
+
+
+start = time.time()
+
+# Create srep without threading
+# for s in range(0,NUM_SHARDS):
+#     votes = []
+#     que = queues[s]
+#     while not que.empty():
+# #     for i in range(0,2):
+#         votes.append(que.get())
+#     client = sreps[s]
+#     sreps[s].create_srep_client(host=CS_HOST, srep_port=base_port+s, vote_tokens=tuple(votes))
+
+
+# In[6]:
+
+
+# Create srep using threading
 threads = []
 for s in range(0,NUM_SHARDS):
     votes = []
     que = queues[s]
     while not que.empty():
+#     for i in range(0,2):
         votes.append(que.get())
     client = sreps[s]
-    t = threading.Thread(target=client.create_srep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
+    t = threading.Thread(target=sreps[s].create_srep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
     threads.append(t)
-start = time.time()
     
 for t in threads:
     t.start()
@@ -125,12 +147,13 @@ for t in threads:
 for t in threads:
     t.join()
 
+
+# In[7]:
+
 end = time.time()
 duration = end-start
 logging.info("Execution took "+ str(duration))
 logging.info("TPS: %s"%(NUM_CLIENTS/duration))
 
-
-with open('stats.csv','a') as f:
-    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, duration))
-
+with open('../../../stats/'+RUN_ID+'_stats.csv','a') as f:
+    f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_CLIENTS/duration))

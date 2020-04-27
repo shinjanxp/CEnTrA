@@ -99,14 +99,12 @@ public class MapClient implements Map<String, String> {
     private int objectToShardAlgorithm(String objectId, int numShards) {
 
         
+        // Random allocation
+        // BigInteger iObject = new BigInteger(objectId.split("_")[1], 16);
+        // return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
 
-        BigInteger iObject = new BigInteger(objectId.split("_")[1], 16);
-
-        return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
-
-        
-        // For now always put all the objects into shard 0 because we need them to stay together
-        // return Integer.parseInt(objectId.split("_")[0]);
+        // Local allocation
+        return Integer.parseInt(objectId.split("_")[0]);
     }
     static int objectToShardAlgorithm(String objectId) {
 
