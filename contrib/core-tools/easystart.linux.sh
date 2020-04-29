@@ -14,6 +14,8 @@ printf "$(date) Deployed shards: $NUM_SHARDS , replicas: $NUM_REPLICAS\n" >> sta
 # For each shard create config directories inside chainspacecore/ChainSpaceConfig and set the port 
 > chainspacecore/ChainSpaceConfig/shardConfig.txt # empty the shard config file
 rm -r chainspacecore/ChainSpaceConfig/shards/config*
+# Modify the system.config file used by bft
+sed -i "s/system.servers.num.*/system.servers.num = ${NUM_REPLICAS}/" chainspacecore/ChainSpaceConfig/shards/base_config/system.config
 
 for SHARD_ID in $(seq 0 $(($NUM_SHARDS-1))) 
 do
