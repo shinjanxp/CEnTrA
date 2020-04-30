@@ -4,8 +4,8 @@ import unittest
 import requests
 # chainsapce
 from chainspacecontract import transaction_to_solution
-# from chainspacecontract.examples.surge import contract as surge_contract
-from chainspacecontract.examples import surge
+# from chainspacecontract.examples.centra import contract as centra_contract
+from chainspacecontract.examples import centra
 # crypto
 from chainspacecontract.examples.utils import setup, key_gen, pack
 from chainspaceapi import ChainspaceClient
@@ -19,11 +19,11 @@ client2 = ChainspaceClient(port=5001)
 client3 = ChainspaceClient(port=5000)
 
 # Init txn
-init_transaction = surge.init()
+init_transaction = centra.init()
 init_s0_token1 = init_transaction['transaction']['outputs'][0]
 client1.process_transaction(init_transaction)
 
-init_transaction = surge.init()
+init_transaction = centra.init()
 init_s1_token1 = init_transaction['transaction']['outputs'][0]
 client2.process_transaction(init_transaction)
 
@@ -31,31 +31,31 @@ client2.process_transaction(init_transaction)
 ############################  Client 1  ###################################
 ###########################################################################
 
-# Create surge client
-create_surge_client_txn = surge.create_surge_client(
+# Create centra client
+create_centra_client_txn = centra.create_centra_client(
     (init_s0_token1,),
     None,
     (pack(provider_pub1),),
     'Some info about the client.',
 )
-vote_slip1 = create_surge_client_txn['transaction']['outputs'][1]
-surge_client1 = create_surge_client_txn['transaction']['outputs'][0]
-client1.process_transaction(create_surge_client_txn)
+vote_slip1 = create_centra_client_txn['transaction']['outputs'][1]
+centra_client1 = create_centra_client_txn['transaction']['outputs'][0]
+client1.process_transaction(create_centra_client_txn)
 
 ###########################################################################
 ############################  Client 2  ###################################
 ###########################################################################
 
-# Create surge client
-create_surge_client_txn = surge.create_surge_client(
+# Create centra client
+create_centra_client_txn = centra.create_centra_client(
     (init_s1_token1,),
     None,
     (pack(provider_pub2),),
     'Some info about the client.',
 )
-vote_slip2 = create_surge_client_txn['transaction']['outputs'][1]
-surge_client2 = create_surge_client_txn['transaction']['outputs'][0]
-client2.process_transaction(create_surge_client_txn)
+vote_slip2 = create_centra_client_txn['transaction']['outputs'][1]
+centra_client2 = create_centra_client_txn['transaction']['outputs'][0]
+client2.process_transaction(create_centra_client_txn)
 
 ###########################################################################
 #############  Clients 1 and 2 cast vote for client 3  ####################
@@ -63,7 +63,7 @@ client2.process_transaction(create_surge_client_txn)
 
 
 # Cast vote
-cast_csc_vote_txn = surge.cast_csc_vote(
+cast_csc_vote_txn = centra.cast_csc_vote(
     (vote_slip1,),
     None,
     None,
@@ -74,7 +74,7 @@ vote_token1 = cast_csc_vote_txn['transaction']['outputs'][0]
 vote_slip1 = cast_csc_vote_txn['transaction']['outputs'][1]
 client1.process_transaction(cast_csc_vote_txn)
 
-cast_csc_vote_txn = surge.cast_csc_vote(
+cast_csc_vote_txn = centra.cast_csc_vote(
     (vote_slip2,),
     None,
     None,
@@ -89,15 +89,15 @@ client2.process_transaction(cast_csc_vote_txn)
 ############################  Client 3  ###################################
 ###########################################################################
 
-create_surge_client_txn = surge.create_surge_client(
+create_centra_client_txn = centra.create_centra_client(
     (vote_token1, vote_token2,),
     None,
     (pack(provider_pub3),),
     'Some info about the client.',
 )
-vote_slip3 = create_surge_client_txn['transaction']['outputs'][1]
-surge_client3 = create_surge_client_txn['transaction']['outputs'][0]
-client3.process_transaction(create_surge_client_txn)
+vote_slip3 = create_centra_client_txn['transaction']['outputs'][1]
+centra_client3 = create_centra_client_txn['transaction']['outputs'][0]
+client3.process_transaction(create_centra_client_txn)
 
 
 

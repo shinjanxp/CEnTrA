@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding: utf-8
 
 # In[1]:
@@ -6,7 +5,7 @@
 
 from json import dumps, loads
 import time, os
-import threading, Queue
+import threading 
 import ast
 import unittest
 import requests
@@ -14,8 +13,8 @@ import random
 import logging
 # chainsapce
 from chainspacecontract import transaction_to_solution
-# from chainspacecontract.examples.surge import contract as surge_contract
-from chainspacecontract.examples import surge
+# from chainspacecontract.examples.centra import contract as centra_contract
+from chainspacecontract.examples import centra
 # crypto
 from chainspacecontract.examples.utils import setup, key_gen, pack
 from chainspaceapi import ChainspaceClient
@@ -31,7 +30,7 @@ CS_HOST=os.getenv('PEERS_HOST', 'localhost')
 # Setup logging
 logging.basicConfig(level=logging.INFO, filename="../../../stats/"+RUN_ID+"_execution.log", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
-logging.info("Starting measure_surge_add_srep")
+logging.info("Starting test_centra_bids")
 
 
 logging.info("NUM_SHARDS: %s, NUM_REPLICAS: %s, NUM_CLIENTS: %s "%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS))
@@ -42,10 +41,10 @@ G = setup()[0]
 
 
 global_client = ChainspaceClient(host=CS_HOST,port=5000)
-init_transaction = surge.init()
+init_transaction = centra.init()
 init_tokens = init_transaction['transaction']['outputs']
 global_client.process_transaction(init_transaction)
-client_divs = surge.eq_div(NUM_CLIENTS, NUM_SHARDS)
+client_divs = centra.eq_div(NUM_CLIENTS, NUM_SHARDS)
 print client_divs
 
 
@@ -55,14 +54,14 @@ print client_divs
 # Create prosumer clients for locations 
 clients = []
 base_port=5000
-sreps = []
+
 
 for s in range(0,NUM_SHARDS):
     clients.append([])
-    sreps.append(surge.SREPClient(host=CS_HOST, port=base_port+s))
-    
     for c in range(0,client_divs[s]):
-        clients[s].append(surge.SurgeClient(host=CS_HOST, port=base_port+s))
+        
+#         clients[s].append(centra.CentraClient(host=CS_HOST, port=base_port+s, init_token=init_tokens[idx]))
+        clients[s].append(centra.CentraClient(host=CS_HOST, port=base_port+s))
 
 print clients
 
@@ -72,7 +71,7 @@ for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         client = clients[s][c]
         idx = sum(client_divs[:s]) + c
-        threads[s].append(threading.Thread(target=clients[s][c].create_surge_client, args=(init_tokens[idx],)) )
+        threads[s].append(threading.Thread(target=client.create_centra_client, args=(init_tokens[idx],)) )
 
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
@@ -81,25 +80,40 @@ for s in range(0,NUM_SHARDS):
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         threads[s][c].join()
+
+# c00 = centra.CentraClient(5000, init_token[0]) # location=0
+# Create sreps for locations 0 and 1 which will be clients in location 2
+# rep0 = centra.SREPClient(5002, init_token[4]) # location=2
+
+# Elect rep1 as SREP for location 0
+# votes = (c00.cast_srep_vote(rep0.pub), c01.cast_srep_vote(rep0.pub))
+# rep0.create_srep_client(5000, votes) 
+
+# Elect rep2 as SREP for location 1
+# votes = (c10.cast_srep_vote(rep1.pub), c11.cast_srep_vote(rep1.pub))
+# rep1.create_srep_client(5001, votes) 
 
 
 # In[4]:
 
 
-# Create threads for casting srep vote
-
+# Create threads for bidding
 threads = []
-queues = []
-
 for s in range(0,NUM_SHARDS):
-    que = Queue.Queue()
     threads.append([])
     for c in range(0,client_divs[s]):
-        t = threading.Thread(target=clients[s][c].cast_srep_vote, args=(sreps[s].pub, que)) 
-        threads[s].append(t)
-    queues.append(que)
+        client = clients[s][c]
+        bid_value = random.randint(0,100)
+        threads[s].append(threading.Thread(target=client.submit_bid, args=(random.choice(['EBBuy', 'EBSell']),bid_value)) )
+
+# trep0 = threading.Thread(target=rep0.accept_bids) 
+
+
+# In[5]:
+
 
 # Run bidding threads
+start = time.time()
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         threads[s][c].start()
@@ -107,48 +121,6 @@ for s in range(0,NUM_SHARDS):
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         threads[s][c].join()
-
-
-
-# In[5]:
-
-
-start = time.time()
-
-# Create srep without threading
-# for s in range(0,NUM_SHARDS):
-#     votes = []
-#     que = queues[s]
-#     while not que.empty():
-# #     for i in range(0,2):
-#         votes.append(que.get())
-#     client = sreps[s]
-#     sreps[s].create_srep_client(host=CS_HOST, srep_port=base_port+s, vote_tokens=tuple(votes))
-
-
-# In[6]:
-
-
-# Create srep using threading
-threads = []
-for s in range(0,NUM_SHARDS):
-    votes = []
-    que = queues[s]
-    while not que.empty():
-#     for i in range(0,2):
-        votes.append(que.get())
-    client = sreps[s]
-    t = threading.Thread(target=sreps[s].create_srep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
-    threads.append(t)
-    
-for t in threads:
-    t.start()
-    
-for t in threads:
-    t.join()
-
-
-# In[7]:
 
 end = time.time()
 duration = end-start
@@ -157,3 +129,17 @@ logging.info("TPS: %s"%(NUM_CLIENTS/duration))
 
 with open('../../../stats/'+RUN_ID+'_stats.csv','a') as f:
     f.write("%s, %s, %s, %s\n"%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS, NUM_CLIENTS/duration))
+
+# In[6]:
+
+
+# '{}|{}'.format(50, loads(r1.ebtoken)['pub'])
+# global_client.fix_json("{'type':'EBBuy','location':0")
+# global_client = ChainspaceClient(port=5001)
+# global_client.get_objects({'location':0,'type':'BidAccept'})
+# print buy_bids
+
+# print loads(objs[0])['type']
+# bid_proofs = rep1.client.get_objects({ 'type':'EBBuy'})
+# print init_token1
+

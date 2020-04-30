@@ -18,32 +18,32 @@ from petlib.ecdsa import do_ecdsa_sign, do_ecdsa_verify
 from chainspacecontract.examples.utils import setup, key_gen, pack, unpack
 
 ## contract name
-contract = ChainspaceContract('surge')
+contract = ChainspaceContract('centra')
 
 
 ## Class definitions for clients
 DELTA = 5
-class SurgeClient:
+class CentraClient:
         
     def __init__(self, host='127.0.0.1', port=5000, init_token=None):
         (self.priv, self.pub) = key_gen(setup())
         self.cs_client = ChainspaceClient(host=host, port=port)
         if init_token:
-            self.create_surge_client(init_token)
+            self.create_centra_client(init_token)
         
-    def create_surge_client(self,token):
+    def create_centra_client(self,token):
         if type(token) is not tuple:
             token = (token,)
-        create_surge_client_txn = create_surge_client(
+        create_centra_client_txn = create_centra_client(
             token,
             None,
             (pack(self.pub),),
             pack(self.priv),
         )
-        self.surge_client = create_surge_client_txn['transaction']['outputs'][0]
-        self.vote_slip = create_surge_client_txn['transaction']['outputs'][1]
-        self.ebtoken = create_surge_client_txn['transaction']['outputs'][2]
-        self.cs_client.process_transaction(create_surge_client_txn)
+        self.centra_client = create_centra_client_txn['transaction']['outputs'][0]
+        self.vote_slip = create_centra_client_txn['transaction']['outputs'][1]
+        self.ebtoken = create_centra_client_txn['transaction']['outputs'][2]
+        self.cs_client.process_transaction(create_centra_client_txn)
     
     def cast_csc_vote(self, client_pub):
         cast_csc_vote_txn = cast_csc_vote(
@@ -58,17 +58,17 @@ class SurgeClient:
         self.cs_client.process_transaction(cast_csc_vote_txn)
         return vote_token
 
-    def cast_srep_vote(self, rep_pub, queue=None):
-        cast_srep_vote_txn = cast_srep_vote(
+    def cast_lrep_vote(self, rep_pub, queue=None):
+        cast_lrep_vote_txn = cast_lrep_vote(
             (self.vote_slip,),
             None,
             None,
             pack(self.priv),
             pack(rep_pub),
         )
-        vote_token = cast_srep_vote_txn['transaction']['outputs'][0]
-        self.vote_slip = cast_srep_vote_txn['transaction']['outputs'][1]
-        self.cs_client.process_transaction(cast_srep_vote_txn)
+        vote_token = cast_lrep_vote_txn['transaction']['outputs'][0]
+        self.vote_slip = cast_lrep_vote_txn['transaction']['outputs'][1]
+        self.cs_client.process_transaction(cast_lrep_vote_txn)
         if queue:
             queue.put(vote_token)
         return vote_token
@@ -97,31 +97,31 @@ class SurgeClient:
         # self.cs_client.process_transaction(bid_txn)
         # return bid
         
-class SREPClient (SurgeClient):
+class LREPClient (CentraClient):
     
-    def create_srep_client(self, host='127.0.0.1', srep_port=5000, vote_tokens=None):
-        self.srep_cs_client = ChainspaceClient(host=host, port=srep_port, max_wait=srep_port-5000)
-        create_srep_client_txn = create_srep_client(
+    def create_lrep_client(self, host='127.0.0.1', lrep_port=5000, vote_tokens=None):
+        self.lrep_cs_client = ChainspaceClient(host=host, port=lrep_port, max_wait=lrep_port-5000)
+        create_lrep_client_txn = create_lrep_client(
             vote_tokens,
             None,
             (pack(self.pub),),
             pack(self.priv),
         )
-        self.vote_slip = create_srep_client_txn['transaction']['outputs'][1]
-        self.srep_client = create_srep_client_txn['transaction']['outputs'][0]
-        self.srep_cs_client.process_transaction(create_srep_client_txn)
+        self.vote_slip = create_lrep_client_txn['transaction']['outputs'][1]
+        self.lrep_client = create_lrep_client_txn['transaction']['outputs'][0]
+        self.lrep_cs_client.process_transaction(create_lrep_client_txn)
         
     def accept_bids(self):
         time.sleep(DELTA)
-        bid_proofs = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'BidProof'})
+        bid_proofs = self.lrep_cs_client.get_objects({'location':loads(self.lrep_client)['location'], 'type':'BidProof'})
         bidders = {}
         for bid in bid_proofs:
             bid = loads(bid)
             bidders[str(bid['quantity_sig'])]= True
         
         time.sleep(2*DELTA)
-        buy_bids = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBBuy'})
-        sell_bids = self.srep_cs_client.get_objects({'location':loads(self.srep_client)['location'], 'type':'EBSell'})
+        buy_bids = self.lrep_cs_client.get_objects({'location':loads(self.lrep_client)['location'], 'type':'EBBuy'})
+        sell_bids = self.lrep_cs_client.get_objects({'location':loads(self.lrep_client)['location'], 'type':'EBSell'})
         # process bid
         accepted_bids = []
         for bid in buy_bids:
@@ -141,7 +141,7 @@ class SREPClient (SurgeClient):
             pack(self.priv),
         )
         bid_accept = accept_bids_txn['transaction']['outputs'][0]
-        self.srep_cs_client.process_transaction(accept_bids_txn)
+        self.lrep_cs_client.process_transaction(accept_bids_txn)
         return bid_accept
         
 ## Helper functions
@@ -212,18 +212,18 @@ def init():
     }
 
 # ------------------------------------------------------------------
-# create surge client
+# create centra client
 # NOTE:
 #   - only 'inputs', 'reference_inputs' and 'parameters' are used to the framework
 #   - if there are more than 3 param, the checker has to be implemented by hand
 # ------------------------------------------------------------------
-@contract.method('create_surge_client')
-def create_surge_client(inputs, reference_inputs, parameters, priv):
+@contract.method('create_centra_client')
+def create_centra_client(inputs, reference_inputs, parameters, priv):
 
     pub = parameters[0]
     # new client
-    new_surge_client = {
-        'type'           : 'SurgeClient', 
+    new_centra_client = {
+        'type'           : 'CentraClient', 
         'pub'            : pub, 
         'location'       : loads(inputs[0])['location'],
         'timestamp' : time.time()
@@ -242,22 +242,22 @@ def create_surge_client(inputs, reference_inputs, parameters, priv):
     }
     # return
     return {
-        'outputs': ( dumps(new_surge_client), dumps(vote_slip), dumps(ebtoken)),
+        'outputs': ( dumps(new_centra_client), dumps(vote_slip), dumps(ebtoken)),
         'extra_parameters': (
             generate_sig(priv),
         )
     }
 
 # ------------------------------------------------------------------
-# check create_surge_client
+# check create_centra_client
 # ------------------------------------------------------------------
-@contract.checker('create_surge_client')
-def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+@contract.checker('create_centra_client')
+def create_centra_client_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
     try:
         REQUIRED_VOTES=2 # set to the number of CSCVoteTokens required to be accepted as a client
 
         # loads data
-        surge_client = loads(outputs[0])
+        centra_client = loads(outputs[0])
         vote_slip = loads(outputs[1])
         ebtoken = loads(outputs[2])
         
@@ -265,25 +265,25 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
         if len(inputs) < 1 or len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 3 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(surge_client, ['type','pub','location', 'timestamp'])
+        validate(centra_client, ['type','pub','location', 'timestamp'])
         validate(vote_slip, ['type','pub','location', 'timestamp'])
         validate(ebtoken, ['type','pub','location', 'timestamp'])
         
         # type checks
         # Since input can be InitToken or CSCVoteToken we cannot check type here
-        check_type(surge_client, 'SurgeClient')
+        check_type(centra_client, 'CentraClient')
         check_type(vote_slip, 'VoteSlipToken')
         check_type(ebtoken, 'EBToken')
         # explicit type checks
         if not(loads(inputs[0])['type'] == 'InitToken' or loads(inputs[0])['type'] == 'CSCVoteToken'):
             raise Exception("Invalid input token types")
         # equality checks
-        equate(surge_client['pub'], parameters[0])
-        equate(surge_client['pub'], vote_slip['pub'])
-        equate(surge_client['pub'], ebtoken['pub'])
-        equate(surge_client['location'], vote_slip['location'])
-        equate(surge_client['location'], loads(inputs[0])['location'])
-        equate(surge_client['location'], ebtoken['location'])
+        equate(centra_client['pub'], parameters[0])
+        equate(centra_client['pub'], vote_slip['pub'])
+        equate(centra_client['pub'], ebtoken['pub'])
+        equate(centra_client['location'], vote_slip['location'])
+        equate(centra_client['location'], loads(inputs[0])['location'])
+        equate(centra_client['location'], ebtoken['location'])
         
         # signature validation
         validate_sig(parameters[1], parameters[0])
@@ -310,17 +310,17 @@ def create_surge_client_checker(inputs, reference_inputs, parameters, outputs, r
 
 
 # ------------------------------------------------------------------
-# cast csc (create surge client) vote
+# cast csc (create centra client) vote
 # NOTE:
 #   - cast a vote to allow a new client to be added to the platform
 #   - only 'inputs', 'reference_inputs' and 'parameters' are used to the framework
 #   - if there are more than 3 param, the checker has to be implemented by hand 
 #   - inputs must contain a valid VoteSlipToken
 #   - parameters contain a proof signed by the caster's private key
-#   - the SurgeClient object will be used to validate the signature
+#   - the CentraClient object will be used to validate the signature
 # ------------------------------------------------------------------
 @contract.method('cast_csc_vote')
-def cast_csc_vote(inputs, reference_inputs, parameters, surge_client_priv, granted_to_pub):
+def cast_csc_vote(inputs, reference_inputs, parameters, centra_client_priv, granted_to_pub):
 
     # vote_slip = inputs[0]
     # proof = parameters[0]
@@ -337,7 +337,7 @@ def cast_csc_vote(inputs, reference_inputs, parameters, surge_client_priv, grant
     return {
         'outputs': ( dumps(vote_token), inputs[0]),
         'extra_parameters': (
-            generate_sig(surge_client_priv),
+            generate_sig(centra_client_priv),
         )
     }
     
@@ -379,21 +379,21 @@ def cast_csc_vote_checker(inputs, reference_inputs, parameters, outputs, returns
 
 
 # ------------------------------------------------------------------
-# cast srep (shard representative) vote 
+# cast lrep (shard representative) vote 
 # NOTE:
 #   - cast a vote to allow a client to act as shard representative
 #   - inputs must contain a valid VoteSlipToken
 #   - parameters contain a proof signed by the caster's private key
 # ------------------------------------------------------------------
-@contract.method('cast_srep_vote')
-def cast_srep_vote(inputs, reference_inputs, parameters, priv, granted_to_pub):
+@contract.method('cast_lrep_vote')
+def cast_lrep_vote(inputs, reference_inputs, parameters, priv, granted_to_pub):
 
     # vote_slip = inputs[0]
     # proof = parameters[0]
     granted_by_pub = loads(inputs[0])['pub']
 
     vote_token = {
-        'type'          : 'SREPVoteToken', 
+        'type'          : 'LREPVoteToken', 
         'granted_by'    : granted_by_pub,
         'granted_to'    : granted_to_pub,
         'location'      : loads(inputs[0])['location'],
@@ -408,10 +408,10 @@ def cast_srep_vote(inputs, reference_inputs, parameters, priv, granted_to_pub):
     }
     
 # ------------------------------------------------------------------
-# check cast_srep_vote
+# check cast_lrep_vote
 # ------------------------------------------------------------------
-@contract.checker('cast_srep_vote')
-def cast_srep_vote_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+@contract.checker('cast_lrep_vote')
+def cast_lrep_vote_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
     try:
 
         # loads data
@@ -427,7 +427,7 @@ def cast_srep_vote_checker(inputs, reference_inputs, parameters, outputs, return
         validate(new_vote_slip, ['type','pub','location', 'timestamp'])
         # type checks
         check_type(vote_slip, 'VoteSlipToken')
-        check_type(vote_token, 'SREPVoteToken')
+        check_type(vote_token, 'LREPVoteToken')
         check_type(new_vote_slip, 'VoteSlipToken')
         # equality checks
         equate(vote_slip['pub'], new_vote_slip['pub'])
@@ -444,18 +444,18 @@ def cast_srep_vote_checker(inputs, reference_inputs, parameters, outputs, return
 
 
 # ------------------------------------------------------------------
-# create srep client
+# create lrep client
 # NOTE:
 #   - only 'inputs', 'reference_inputs' and 'parameters' are used to the framework
 #   - if there are more than 3 param, the checker has to be implemented by hand
 # ------------------------------------------------------------------
-@contract.method('create_srep_client')
-def create_srep_client(inputs, reference_inputs, parameters, priv):
+@contract.method('create_lrep_client')
+def create_lrep_client(inputs, reference_inputs, parameters, priv):
 
     pub = parameters[0]
     # new client
-    srep_client = {
-        'type'           : 'SREPClient', 
+    lrep_client = {
+        'type'           : 'LREPClient', 
         'pub'            : pub, 
         'location'       : loads(inputs[0])['location'],
         'timestamp'      : time.time()
@@ -468,42 +468,42 @@ def create_srep_client(inputs, reference_inputs, parameters, priv):
     }
     # return
     return {
-        'outputs': ( dumps(srep_client), dumps(vote_slip)),
+        'outputs': ( dumps(lrep_client), dumps(vote_slip)),
         'extra_parameters': (
             generate_sig(priv),
         )
     }
 
 # ------------------------------------------------------------------
-# check create_srep_client
+# check create_lrep_client
 # ------------------------------------------------------------------
-@contract.checker('create_srep_client')
-def create_srep_client_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
+@contract.checker('create_lrep_client')
+def create_lrep_client_checker(inputs, reference_inputs, parameters, outputs, returns, dependencies):
     try:
         REQUIRED_VOTES=2 # set to the number of CSCVoteTokens required to be accepted as a client
 
         # loads data
-        srep_client = loads(outputs[0])
+        lrep_client = loads(outputs[0])
         vote_slip = loads(outputs[1])
-        srep_vote_1 = loads(inputs[0])
+        lrep_vote_1 = loads(inputs[0])
         
         # check argument lengths
         if len(reference_inputs) != 0 or len(parameters)!=2 or len(outputs) != 2 or len(returns) != 0:
             raise Exception("Invalid argument lengths")
         # key validations
-        validate(srep_client, ['type','pub','location', 'timestamp'])
+        validate(lrep_client, ['type','pub','location', 'timestamp'])
         validate(vote_slip, ['type','pub','location', 'timestamp'])
-        validate(srep_vote_1, ['type','granted_by', 'granted_to','location', 'timestamp'])
+        validate(lrep_vote_1, ['type','granted_by', 'granted_to','location', 'timestamp'])
         
         # type checks
-        check_type(srep_client, 'SREPClient')
+        check_type(lrep_client, 'LREPClient')
         check_type(vote_slip, 'VoteSlipToken')
-        check_type(srep_vote_1, 'SREPVoteToken')
+        check_type(lrep_vote_1, 'LREPVoteToken')
         # equality checks
-        equate(srep_client['pub'], parameters[0])
-        equate(srep_client['pub'], vote_slip['pub'])
-        equate(srep_client['location'], vote_slip['location'])
-        equate(srep_client['location'], srep_vote_1['location'])
+        equate(lrep_client['pub'], parameters[0])
+        equate(lrep_client['pub'], vote_slip['pub'])
+        equate(lrep_client['location'], vote_slip['location'])
+        equate(lrep_client['location'], lrep_vote_1['location'])
         
         # signature validation
         validate_sig(parameters[1], parameters[0])
@@ -512,9 +512,9 @@ def create_srep_client_checker(inputs, reference_inputs, parameters, outputs, re
         voters = {}
         for vote in inputs:
             vote = loads(vote)
-            check_type(vote, 'SREPVoteToken')
+            check_type(vote, 'LREPVoteToken')
             equate(vote['granted_to'], parameters[0])
-            equate(vote['location'], srep_client['location'])
+            equate(vote['location'], lrep_client['location'])
             voters[str(vote['granted_by'])]= True
         
         if len(voters) < REQUIRED_VOTES:
@@ -659,7 +659,7 @@ def submit_bid_checker(inputs, reference_inputs, parameters, outputs, returns, d
 # ------------------------------------------------------------------
 # accept bids
 # NOTE:
-#   - SREP executes this contract to accept bids and calculate diff
+#   - LREP executes this contract to accept bids and calculate diff
 #   - inputs must contain list of EBBuy or EBSell objects
 #   - outputs must contain a valid EBAccept object
 #   - client's private key to be provided as extra argument to be used for signature

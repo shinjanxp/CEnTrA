@@ -14,8 +14,8 @@ import random
 import logging
 # chainsapce
 from chainspacecontract import transaction_to_solution
-# from chainspacecontract.examples.surge import contract as surge_contract
-from chainspacecontract.examples import surge
+# from chainspacecontract.examples.centra import contract as centra_contract
+from chainspacecontract.examples import centra
 # crypto
 from chainspacecontract.examples.utils import setup, key_gen, pack
 from chainspaceapi import ChainspaceClient
@@ -23,7 +23,7 @@ from chainspaceapi import ChainspaceClient
 # Setup logging
 logging.basicConfig(level=logging.INFO, filename="execution.log", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
-logging.info("Starting test_surge_bids")
+logging.info("Starting test_centra_bids")
 
 # Setup variables
 r = requests.get('http://10.129.6.52:4999/setup.in')
@@ -41,10 +41,10 @@ G = setup()[0]
 
 
 global_client = ChainspaceClient(host=CS_HOST,port=5000)
-init_transaction = surge.init()
+init_transaction = centra.init()
 init_tokens = init_transaction['transaction']['outputs']
 global_client.process_transaction(init_transaction)
-client_divs = surge.eq_div(NUM_CLIENTS, NUM_SHARDS)
+client_divs = centra.eq_div(NUM_CLIENTS, NUM_SHARDS)
 print client_divs
 
 
@@ -58,10 +58,10 @@ sreps = []
 
 for s in range(0,NUM_SHARDS):
     clients.append([])
-    sreps.append(surge.SREPClient(host=CS_HOST, port=base_port+s))
+    sreps.append(centra.SREPClient(host=CS_HOST, port=base_port+s))
     
     for c in range(0,client_divs[s]):
-        clients[s].append(surge.SurgeClient(host=CS_HOST, port=base_port+s))
+        clients[s].append(centra.CentraClient(host=CS_HOST, port=base_port+s))
 
 print clients
 
@@ -71,7 +71,7 @@ for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
         client = clients[s][c]
         idx = sum(client_divs[:s]) + c
-        threads[s].append(threading.Thread(target=clients[s][c].create_surge_client, args=(init_tokens[idx],)) )
+        threads[s].append(threading.Thread(target=clients[s][c].create_centra_client, args=(init_tokens[idx],)) )
 
 for s in range(0,NUM_SHARDS):
     for c in range(0,client_divs[s]):
