@@ -13,6 +13,8 @@ import bftsmart.tom.core.messages.TOMMessageType;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.math.BigInteger;
+
 
 import static bftsmart.tom.core.messages.TOMMessageType.UNORDERED_REQUEST;
 import static uk.ac.ucl.cs.sec.chainspace.bft.RequestType.TRANSACTION_SUBMIT;
@@ -51,9 +53,9 @@ public class MapClient implements Map<String, String> {
     private HashMap<String, TOMMessage> asynchReplies = null;
 
     // FIXME: Choose suitable timeout values
-    private int submitTTimeout = 5000; // How long should the client wait for responses from all shards
+    private int submitTTimeout = 60000; // How long should the client wait for responses from all shards
     // after calling SUBMIT_T
-    private int createObjectTimeout = 0; // How long should the replica-client wait for responses from all shards
+    private int createObjectTimeout = 60000; // How long should the replica-client wait for responses from all shards
     // after calling CREATE_OBJECT
 
 
@@ -96,14 +98,12 @@ public class MapClient implements Map<String, String> {
 
     private int objectToShardAlgorithm(String objectId, int numShards) {
 
-        /*
+        
+        // Random allocation
+        // BigInteger iObject = new BigInteger(objectId.split("_")[1], 16);
+        // return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
 
-        BigInteger iObject = new BigInteger(objectId, 16);
-
-        return iObject.mod(new BigInteger(Integer.toString(numShards))).intValue();
-
-         */
-        // For now always put all the objects into shard 0 because we need them to stay together
+        // Local allocation
         return Integer.parseInt(objectId.split("_")[0]);
     }
     static int objectToShardAlgorithm(String objectId) {
@@ -673,7 +673,7 @@ public class MapClient implements Map<String, String> {
                 // FIXME: Choose suitable timeout values
                 int minWait = 1; // First wait will be minWait long
                 int timeoutIncrement = 2; // subsequent wait will proceed in timeoutIncrement until all shards reply
-                int maxWait = 10000; // time out if waitedSoFar exceeds maxWait
+                int maxWait = 60000; // time out if waitedSoFar exceeds maxWait
 
                 boolean firstAttempt = true;
                 int waitedSoFar = 0;
