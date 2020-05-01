@@ -3,7 +3,7 @@
 
 # CEnTrA
 
-CEnTrA si an application of using sharding in distributed ledger technology to develop a novel hierarchical model capable of processing P2P energy sharing transactions at city-scale. This prototype code is based on a fork of [Chainspace](https://github.com/chainspace/chainspace-prototype). Chainspace is a distributed ledger platform for high-integrity and transparent processing of transactions within a decentralized system.
+CEnTrA is an application of using sharding in distributed ledger technology to develop a novel hierarchical model capable of processing P2P energy sharing transactions at city-scale. This prototype code is based on a fork of [Chainspace](https://github.com/chainspace/chainspace-prototype). Chainspace is a distributed ledger platform for high-integrity and transparent processing of transactions within a decentralized system.
 
 ## Developer Installation
 
