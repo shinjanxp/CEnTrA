@@ -109,7 +109,8 @@ class LREPClient (CentraClient):
         )
         self.vote_slip = create_lrep_client_txn['transaction']['outputs'][1]
         self.lrep_client = create_lrep_client_txn['transaction']['outputs'][0]
-        self.lrep_cs_client.process_transaction(create_lrep_client_txn)
+        r=self.lrep_cs_client.process_transaction(create_lrep_client_txn)
+        print "create_lrep_client result: ", r.status_code
         
     def accept_bids(self):
         time.sleep(DELTA)

@@ -31,7 +31,7 @@ CS_HOST=os.getenv('PEERS_HOST', 'localhost')
 # Setup logging
 logging.basicConfig(level=logging.INFO, filename="../../../stats/"+RUN_ID+"_execution.log", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
-logging.info("Starting measure_centra_add_srep")
+logging.info("Starting measure_centra_add_lrep")
 
 
 logging.info("NUM_SHARDS: %s, NUM_REPLICAS: %s, NUM_CLIENTS: %s "%(NUM_SHARDS, NUM_REPLICAS, NUM_CLIENTS))
@@ -46,7 +46,7 @@ init_transaction = centra.init()
 init_tokens = init_transaction['transaction']['outputs']
 global_client.process_transaction(init_transaction)
 client_divs = centra.eq_div(NUM_CLIENTS, NUM_SHARDS)
-print client_divs
+# print client_divs
 
 
 # In[3]:
@@ -55,16 +55,16 @@ print client_divs
 # Create prosumer clients for locations 
 clients = []
 base_port=5000
-sreps = []
+lreps = []
 
 for s in range(0,NUM_SHARDS):
     clients.append([])
-    sreps.append(centra.SREPClient(host=CS_HOST, port=base_port+s))
+    lreps.append(centra.LREPClient(host=CS_HOST, port=base_port+s))
     
     for c in range(0,client_divs[s]):
         clients[s].append(centra.CentraClient(host=CS_HOST, port=base_port+s))
 
-print clients
+# print clients
 
 threads = []
 for s in range(0,NUM_SHARDS):
@@ -86,7 +86,7 @@ for s in range(0,NUM_SHARDS):
 # In[4]:
 
 
-# Create threads for casting srep vote
+# Create threads for casting lrep vote
 
 threads = []
 queues = []
@@ -95,7 +95,7 @@ for s in range(0,NUM_SHARDS):
     que = Queue.Queue()
     threads.append([])
     for c in range(0,client_divs[s]):
-        t = threading.Thread(target=clients[s][c].cast_srep_vote, args=(sreps[s].pub, que)) 
+        t = threading.Thread(target=clients[s][c].cast_lrep_vote, args=(lreps[s].pub, que)) 
         threads[s].append(t)
     queues.append(que)
 
@@ -113,23 +113,23 @@ for s in range(0,NUM_SHARDS):
 # In[5]:
 
 
-start = time.time()
 
-# Create srep without threading
+# Create lrep without threading
 # for s in range(0,NUM_SHARDS):
 #     votes = []
 #     que = queues[s]
 #     while not que.empty():
 # #     for i in range(0,2):
 #         votes.append(que.get())
-#     client = sreps[s]
-#     sreps[s].create_srep_client(host=CS_HOST, srep_port=base_port+s, vote_tokens=tuple(votes))
+#     client = lreps[s]
+#     lreps[s].create_lrep_client(host=CS_HOST, lrep_port=base_port+s, vote_tokens=tuple(votes))
 
 
 # In[6]:
+start = time.time()
 
 
-# Create srep using threading
+# Create lrep using threading
 threads = []
 for s in range(0,NUM_SHARDS):
     votes = []
@@ -137,8 +137,8 @@ for s in range(0,NUM_SHARDS):
     while not que.empty():
 #     for i in range(0,2):
         votes.append(que.get())
-    client = sreps[s]
-    t = threading.Thread(target=sreps[s].create_srep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
+    client = lreps[s]
+    t = threading.Thread(target=lreps[s].create_lrep_client, args=(CS_HOST, base_port+s, tuple(votes)) )
     threads.append(t)
     
 for t in threads:
